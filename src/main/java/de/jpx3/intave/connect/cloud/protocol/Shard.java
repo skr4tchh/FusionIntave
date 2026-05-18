@@ -1,6 +1,5 @@
 package de.jpx3.intave.connect.cloud.protocol;
 
-import de.jpx3.intave.IntaveControl;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInput;

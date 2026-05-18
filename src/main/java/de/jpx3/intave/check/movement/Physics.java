@@ -25,9 +25,8 @@ import de.jpx3.intave.check.CheckConfiguration.CheckSettings;
 import de.jpx3.intave.check.CheckStatistics;
 import de.jpx3.intave.check.CheckViolationLevelDecrementer;
 import de.jpx3.intave.check.movement.physics.*;
-import de.jpx3.intave.check.movement.physics.eval.EvaluationTag;
+import de.jpx3.intave.check.movement.physics.evaluation.EvaluationTag;
 import de.jpx3.intave.connect.sibyl.SibylBroadcast;
-import de.jpx3.intave.connect.upload.RealtimedataUplink;
 import de.jpx3.intave.diagnostic.message.DebugBroadcast;
 import de.jpx3.intave.diagnostic.message.MessageSeverity;
 import de.jpx3.intave.diagnostic.timings.Timings;
@@ -182,6 +181,10 @@ public final class Physics extends Check {
     if (collider.edgeSneak()) {
       movementData.pastEdgeSneak = 0;
     }
+    if (clientData.newBlockEntityIntersectionLogic()) {
+      movementData.setPreMoveColliderResult(collider);
+    }
+
     Timings.CHECK_PHYSICS_PROC_TOT.stop();
     Timings.CHECK_PHYSICS_EVAL.start();
     // evaluation
@@ -205,14 +208,23 @@ public final class Physics extends Check {
   private void simulateMotionClamp(User user) {
     MovementMetadata movementData = user.meta().movement();
     double resetMotion = movementData.resetMotion();
-    if (Math.abs(movementData.baseMotionX) < resetMotion) {
-      movementData.baseMotionX = 0.0;
+
+    if (user.meta().protocol().newMotionClampLogic()) {
+      if (movementData.baseMotion().horizontalLengthSqr() < 0.000009) {
+        movementData.baseMotionX = 0;
+        movementData.baseMotionZ = 0;
+      }
+    } else {
+      if (Math.abs(movementData.baseMotionX) < resetMotion) {
+        movementData.baseMotionX = 0.0;
+      }
+      if (Math.abs(movementData.baseMotionZ) < resetMotion) {
+        movementData.baseMotionZ = 0.0;
+      }
     }
+
     if (Math.abs(movementData.baseMotionY) < resetMotion) {
       movementData.baseMotionY = 0.0;
-    }
-    if (Math.abs(movementData.baseMotionZ) < resetMotion) {
-      movementData.baseMotionZ = 0.0;
     }
   }
 

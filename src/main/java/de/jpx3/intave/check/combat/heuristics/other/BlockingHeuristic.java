@@ -25,16 +25,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.ARM_ANIMATION;
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.BLOCK_DIG;
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.BLOCK_PLACE;
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.FLYING;
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.HELD_ITEM_SLOT_IN;
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.LOOK;
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION;
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION_LOOK;
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.USE_ITEM;
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.VEHICLE_MOVE;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_9;
 
 public final class BlockingHeuristic extends ClassicHeuristic<BlockingHeuristic.BlockingMeta> {

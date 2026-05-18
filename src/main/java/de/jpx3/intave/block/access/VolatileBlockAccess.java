@@ -177,6 +177,10 @@ public final class VolatileBlockAccess {
     return typeAccess(user, world, blockX, blockY, blockZ);
   }
 
+  public static Material typeAccess(User user, double x, double y, double z) {
+    return typeAccess(user, user.player().getWorld(), floor(x), floor(y), floor(z));
+  }
+
   public static Material typeAccess(User user, World blockAccess, double x, double y, double z) {
     return typeAccess(user, blockAccess, floor(x), floor(y), floor(z));
   }

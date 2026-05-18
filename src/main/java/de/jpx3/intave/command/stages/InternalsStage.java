@@ -2,7 +2,6 @@ package de.jpx3.intave.command.stages;
 
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.command.CommandStage;
-import de.jpx3.intave.command.Forward;
 import de.jpx3.intave.command.SubCommand;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.Modules;

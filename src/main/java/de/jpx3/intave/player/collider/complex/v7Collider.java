@@ -2,7 +2,7 @@ package de.jpx3.intave.player.collider.complex;
 
 import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.block.shape.BlockShape;
-import de.jpx3.intave.check.movement.physics.SimulationEnvironment;
+import de.jpx3.intave.check.movement.physics.environment.SimulationEnvironment;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.Direction;
 import de.jpx3.intave.share.Motion;
@@ -97,7 +97,7 @@ final class v7Collider implements Collider {
     motion.motionY = newPositionY - positionY;
     motion.motionZ = newPositionZ - positionZ;
     return new ColliderResult(
-      Motion.copyFrom(motion), onGround,
+      Motion.copyFrom(motion), null, onGround,
       collidedHorizontally, collidedVertically, moveResetX, moveResetZ,
       step, false, stepHeight
     );

@@ -1,5 +1,7 @@
-package de.jpx3.intave.check.movement.physics;
+package de.jpx3.intave.check.movement.physics.environment;
 
+import de.jpx3.intave.check.movement.physics.Pose;
+import de.jpx3.intave.player.collider.complex.ColliderResult;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.Motion;
 import de.jpx3.intave.share.Position;
@@ -99,6 +101,8 @@ public interface SimulationEnvironment {
   double jumpMotion();
   double gravity();
 
+  float blockSpeedFactor();
+
   // states
   boolean isSneaking();
   boolean isSprinting();
@@ -134,6 +138,9 @@ public interface SimulationEnvironment {
   void setPushedByEntity(boolean pushedByEntity);
   boolean pushedByEntity();
 
+  void setPreMoveColliderResult(ColliderResult result);
+  ColliderResult preMoveColliderResult();
+
   int afterRespawnTicks();
   int pastAnyVelocity();
   int pastExternalVelocity();
@@ -158,4 +165,6 @@ public interface SimulationEnvironment {
   float width();
   double heightRounded();
   double widthRounded();
+
+  SimulationEnvironment unmodifiable();
 }

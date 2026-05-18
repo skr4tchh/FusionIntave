@@ -31,8 +31,8 @@ import de.jpx3.intave.library.asm.*;
 import de.jpx3.intave.library.asm.tree.ClassNode;
 import de.jpx3.intave.library.asm.tree.MethodNode;
 import de.jpx3.intave.library.asm.tree.TryCatchBlockNode;
-import de.jpx3.intave.library.asm.tree.analysis.Frame;
 import de.jpx3.intave.library.asm.tree.analysis.*;
+import de.jpx3.intave.library.asm.tree.analysis.Frame;
 
 import java.io.FileInputStream;
 import java.io.IOException;

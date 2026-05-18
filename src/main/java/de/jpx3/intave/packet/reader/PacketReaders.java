@@ -9,11 +9,11 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client;
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.CLOSE_WINDOW;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.CLOSE_WINDOW;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server;
-import static de.jpx3.intave.module.linker.packet.PacketId.Server.POSITION;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.POSITION;
 
 public final class PacketReaders {
   private static final Map<PacketType, ThreadLocal<? extends PacketReader>> readerLocals = new HashMap<>();

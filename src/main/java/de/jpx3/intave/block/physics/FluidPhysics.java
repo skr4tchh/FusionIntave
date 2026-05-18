@@ -29,7 +29,7 @@ final class FluidPhysics implements BlockPhysic {
   }
 
   @Override
-  public Motion entityCollidedWithBlock(User user, Location location, Location from, double motionX, double motionY, double motionZ) {
+  public Motion entityInside(User user, Location location, Location from, double motionX, double motionY, double motionZ) {
     ProtocolMetadata clientData = user.meta().protocol();
     if (clientData.waterUpdate()) {
       MovementMetadata movementData = user.meta().movement();

@@ -1,4 +1,4 @@
-package de.jpx3.intave.check.movement.physics.eval;
+package de.jpx3.intave.check.movement.physics.evaluation;
 
 import org.jetbrains.annotations.NotNull;
 

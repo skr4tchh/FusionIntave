@@ -1,7 +1,6 @@
 package de.jpx3.intave.check.other.inventoryclickanalysis;
 
 import com.comphenix.protocol.events.PacketEvent;
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
@@ -13,7 +12,6 @@ import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.violation.Violation;
-import de.jpx3.intave.module.violation.ViolationContext;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
@@ -26,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.WINDOW_CLICK;
-import static de.jpx3.intave.module.mitigate.AttackNerfStrategy.*;
 
 public final class DelayAnalyzer extends MetaCheckPart<InventoryClickAnalysis, DelayAnalyzer.ClickDelayMeta> {
   private static final boolean MODERN_WINDOW_CLICK = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);

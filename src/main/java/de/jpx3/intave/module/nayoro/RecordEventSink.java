@@ -3,7 +3,6 @@ package de.jpx3.intave.module.nayoro;
 import de.jpx3.intave.module.nayoro.event.*;
 import de.jpx3.intave.module.nayoro.event.sink.EventSink;
 import de.jpx3.intave.module.tracker.entity.Entity;
-import de.jpx3.intave.security.LicenseAccess;
 
 import java.io.Closeable;
 import java.io.DataOutput;

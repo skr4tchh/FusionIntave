@@ -1,6 +1,5 @@
 package de.jpx3.intave.block.shape.resolve.patch;
 
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.block.shape.BlockShape;
 import org.bukkit.Material;

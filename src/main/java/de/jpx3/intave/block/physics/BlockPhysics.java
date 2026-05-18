@@ -41,7 +41,7 @@ public final class BlockPhysics {
   }
 
   @Nullable
-  public static Motion entityCollision(
+  public static Motion entityInside(
     User user,
     Material material,
     Location location, Location from,
@@ -49,19 +49,19 @@ public final class BlockPhysics {
   ) {
     BlockPhysic collision = physicLookup(material);
     if (collision != null) {
-      return collision.entityCollidedWithBlock(user, location, from, motionX, motionY, motionZ);
+      return collision.entityInside(user, location, from, motionX, motionY, motionZ);
     }
     return null;
   }
 
   @Nullable
-  public static Motion entityCollision(
+  public static Motion entityInside(
     User user,
     Material material,
     double motionX, double motionY, double motionZ
   ) {
     BlockPhysic collision = physicLookup(material);
-    return collision != null ? collision.entityCollidedWithBlock(user, motionX, motionY, motionZ) : null;
+    return collision != null ? collision.entityInside(user, motionX, motionY, motionZ) : null;
   }
 
   @Nullable

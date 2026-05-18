@@ -7,14 +7,12 @@ import de.jpx3.intave.check.CheckViolationLevelDecrementer;
 import de.jpx3.intave.check.combat.clickpatterns.*;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
-import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.module.violation.Violation;
 import de.jpx3.intave.user.User;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.ARM_ANIMATION;
-import static de.jpx3.intave.module.mitigate.AttackNerfStrategy.*;
+import static de.jpx3.intave.module.mitigate.AttackNerfStrategy.RECEIVE_MORE_KNOCKBACK;
 import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DISPLAY_IN_ALL_VERBOSE_MODES;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_13;
 

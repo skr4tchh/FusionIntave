@@ -60,7 +60,7 @@ final class v13Waterflow implements FluidFlow {
         waterFlowTotal.multiply(1.0D / (double) countedWaterCollisions);
       }
 
-      double d2 = 0.014D;
+      double d2 = 0.014d;
       waterFlowTotal.multiply(d2);
 
       if (Math.abs(movementData.baseMotionX) < 0.003D &&
@@ -108,7 +108,7 @@ final class v13Waterflow implements FluidFlow {
   @Override
   public Motion pushMotionAt(User user, int blockX, int blockY, int blockZ) {
     double flowX = 0.0D;
-    double flowY = 0.0D;
+    double flowZ = 0.0D;
 
     Fluid fluid = VolatileBlockAccess.fluidAccess(user, blockX, blockY, blockZ);
     for (Direction direction : Direction.Plane.HORIZONTAL) {
@@ -136,12 +136,12 @@ final class v13Waterflow implements FluidFlow {
 
         if (heightDifference != 0) {
           flowX += direction.offsetX() * heightDifference;
-          flowY += direction.offsetZ() * heightDifference;
+          flowZ += direction.offsetZ() * heightDifference;
         }
       }
     }
 
-    Motion flow = new Motion(flowX, 0.0D, flowY);
+    Motion flow = new Motion(flowX, 0.0D, flowZ);
     if (fluid.falling()) {
       for (Direction direction : Direction.Plane.HORIZONTAL) {
         BlockPosition position = new BlockPosition(blockX, blockY, blockZ).offset(direction);

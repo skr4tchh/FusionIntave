@@ -1,7 +1,5 @@
 package de.jpx3.intave.connect.cloud.protocol.pipeline;
 
-import de.jpx3.intave.IntaveControl;
-import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.check.Check;
 import de.jpx3.intave.check.CheckService;
@@ -10,13 +8,11 @@ import de.jpx3.intave.connect.cloud.protocol.Identity;
 import de.jpx3.intave.connect.cloud.protocol.Packet;
 import de.jpx3.intave.connect.cloud.protocol.listener.Clientbound;
 import de.jpx3.intave.connect.cloud.protocol.packets.*;
-import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.module.nayoro.Classifier;
 import de.jpx3.intave.module.violation.Violation;
 import de.jpx3.intave.module.violation.ViolationProcessor;
-import de.jpx3.intave.security.LicenseAccess;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import io.netty.channel.ChannelHandlerContext;
@@ -24,11 +20,9 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.Random;
 import java.util.UUID;
 
 import static de.jpx3.intave.connect.cloud.protocol.Direction.CLIENTBOUND;
-import static de.jpx3.intave.user.meta.ProtocolMetadata.VERSION_DETAILS;
 
 public final class StandardClientRetriever extends ChannelInboundHandlerAdapter implements Clientbound {
   private final Session session;

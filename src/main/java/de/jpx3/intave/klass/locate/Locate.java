@@ -1,18 +1,14 @@
 package de.jpx3.intave.klass.locate;
 
-import de.jpx3.intave.IntaveControl;
-import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.cleanup.ShutdownTasks;
 import de.jpx3.intave.resource.Resource;
 import de.jpx3.intave.resource.Resources;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 public final class Locate {
   private static final Resource LOCATE_RESOURCE = Resources.resourceFromJarOrBuild("locate");

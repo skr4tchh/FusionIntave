@@ -1,5 +1,7 @@
-package de.jpx3.intave.check.movement.physics;
+package de.jpx3.intave.check.movement.physics.environment;
 
+import de.jpx3.intave.check.movement.physics.Pose;
+import de.jpx3.intave.player.collider.complex.ColliderResult;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.Motion;
 import org.bukkit.Material;
@@ -346,6 +348,11 @@ public final class TestSimulationEnvironment implements SimulationEnvironment {
   }
 
   @Override
+  public float blockSpeedFactor() {
+    return 1;
+  }
+
+  @Override
   public boolean isSneaking() {
     return sneaking;
   }
@@ -476,6 +483,16 @@ public final class TestSimulationEnvironment implements SimulationEnvironment {
   }
 
   @Override
+  public void setPreMoveColliderResult(ColliderResult result) {
+
+  }
+
+  @Override
+  public ColliderResult preMoveColliderResult() {
+    return null;
+  }
+
+  @Override
   public int afterRespawnTicks() {
     return 0;
   }
@@ -568,5 +585,10 @@ public final class TestSimulationEnvironment implements SimulationEnvironment {
   @Override
   public double widthRounded() {
     return width;
+  }
+
+  @Override
+  public SimulationEnvironment unmodifiable() {
+    return this;
   }
 }

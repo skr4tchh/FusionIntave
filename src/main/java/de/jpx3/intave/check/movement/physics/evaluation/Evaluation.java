@@ -1,9 +1,9 @@
-package de.jpx3.intave.check.movement.physics.eval;
+package de.jpx3.intave.check.movement.physics.evaluation;
 
 import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.check.movement.physics.Pose;
 import de.jpx3.intave.check.movement.physics.Simulation;
-import de.jpx3.intave.check.movement.physics.SimulationEnvironment;
+import de.jpx3.intave.check.movement.physics.environment.SimulationEnvironment;
 import de.jpx3.intave.math.Hypot;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.share.Direction.Plane;

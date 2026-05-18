@@ -1,6 +1,6 @@
 package de.jpx3.intave.share;
 
-import de.jpx3.intave.check.movement.physics.SimulationEnvironment;
+import de.jpx3.intave.check.movement.physics.environment.SimulationEnvironment;
 import de.jpx3.intave.codec.StreamCodec;
 import de.jpx3.intave.math.Hypot;
 import de.jpx3.intave.packet.Relative;

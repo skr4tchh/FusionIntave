@@ -21,7 +21,7 @@ final class SoulSandPhysics implements BlockPhysic {
   }
 
   @Override
-  public Motion entityCollidedWithBlock(User user, Location location, Location from, double motionX, double motionY, double motionZ) {
+  public Motion entityInside(User user, Location location, Location from, double motionX, double motionY, double motionZ) {
     boolean useBlockCollision = useBlockCollision(user);
     return useBlockCollision ? new Motion(motionX * 0.4, motionY, motionZ * 0.4) : null;
   }

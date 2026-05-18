@@ -10,9 +10,10 @@ import java.util.Map;
 
 public final class ColliderResult {
   private static final ColliderResult INVALID_SIMULATION = new ColliderResult(
-    new Motion(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), false, false, false, false, false, false, false, 0);
+    new Motion(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), null, false, false, false, false, false, false, false, 0);
 
   private final Motion motion;
+  private final Motion intermittentResult;
   private final boolean onGround, collidedHorizontally, collidedVertically;
   private final boolean resetMotionX, resetMotionZ;
   private final boolean step, edgeSneak;
@@ -22,7 +23,9 @@ public final class ColliderResult {
   private final Map<String, Double> debugData = IntaveControl.ENABLE_MOVEMENT_DEBUGGER_COLLECTOR ? new HashMap<>() : Collections.emptyMap();
 
   public ColliderResult(
-    Motion motion, boolean onGround,
+    Motion motion,
+    Motion intermittentResult,
+    boolean onGround,
     boolean collidedHorizontally, boolean collidedVertically,
     boolean resetMotionX, boolean resetMotionZ,
     boolean step, boolean edgeSneak,
@@ -32,6 +35,7 @@ public final class ColliderResult {
       throw new IllegalArgumentException("Context cannot be null");
     }
     this.motion = motion;
+    this.intermittentResult = intermittentResult;
     this.onGround = onGround;
     this.collidedHorizontally = collidedHorizontally;
     this.collidedVertically = collidedVertically;
@@ -48,6 +52,10 @@ public final class ColliderResult {
 
   public Motion motion() {
     return motion;
+  }
+
+  public Motion intermittentResult() {
+    return intermittentResult;
   }
 
   public boolean onGround() {
@@ -97,6 +105,6 @@ public final class ColliderResult {
   }
 
   public static ColliderResult untouched(Motion motion) {
-    return new ColliderResult(motion, false, false, false, false, false, false, false, 0);
+    return new ColliderResult(motion, null,false, false, false, false, false, false, false, 0);
   }
 }

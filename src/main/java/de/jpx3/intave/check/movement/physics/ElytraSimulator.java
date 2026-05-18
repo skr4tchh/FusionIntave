@@ -1,5 +1,6 @@
 package de.jpx3.intave.check.movement.physics;
 
+import de.jpx3.intave.check.movement.physics.environment.SimulationEnvironment;
 import de.jpx3.intave.diagnostic.timings.Timings;
 import de.jpx3.intave.player.collider.Colliders;
 import de.jpx3.intave.player.collider.complex.ColliderResult;
@@ -110,7 +111,7 @@ final class ElytraSimulator extends BaseSimulator {
       boolean jumpLessThanExpected = colliderResult.motionY() < jumpUpwardsMotion;
       boolean jump = onGround && Math.abs(((colliderResult.motionY()) + jumpUpwardsMotion) - environment.motionY()) < 1e-5 && jumpLessThanExpected;
 
-      if (!flyingPacket(diffX, diffY, diffZ) && !jump) {
+      if (!flyingPacket(user, diffX, diffY, diffZ) && !jump) {
         break;
       }
 

@@ -1,6 +1,5 @@
 package de.jpx3.intave.klass.locate;
 
-import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.klass.Lookup;
 import de.jpx3.intave.library.asm.Type;
 

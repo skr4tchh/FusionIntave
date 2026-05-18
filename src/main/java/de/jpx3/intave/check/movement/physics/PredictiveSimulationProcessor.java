@@ -13,8 +13,6 @@ import de.jpx3.intave.user.meta.*;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
-import java.util.List;
-
 public final class PredictiveSimulationProcessor implements SimulationProcessor {
 
   /*
@@ -237,7 +235,9 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     movementData.keyForward = configuration.forward();
     movementData.keyStrafe = configuration.strafe();
     movementData.refreshFriction(sprinting);
-    Simulation simulation = simulator.simulate(user, motion, movementData, configuration);
+    Simulation simulation = simulator.simulate(
+      user, motion, movementData.unmodifiable(), configuration
+    );
     Timings.CHECK_PHYSICS_PROC_PRED_BIA.stop();
     Timings.CHECK_PHYSICS_PROC_BIA.stop();
     return simulation;
@@ -345,7 +345,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     movementData.keyForward = configuration.forward();
     movementData.keyStrafe = configuration.strafe();
     movementData.refreshFriction(sprinting);
-    Simulation simulationResult = simulator.simulate(user, motion, movementData, configuration);
+    Simulation simulationResult = simulator.simulate(user, motion, movementData.unmodifiable(), configuration);
     Timings.CHECK_PHYSICS_PROC_LK_BIA.stop();
     Timings.CHECK_PHYSICS_PROC_BIA.stop();
     return simulationResult;
@@ -408,6 +408,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
       boolean certain = movementData.pastSprintChange > 1;
       sprintSelector = movementData.sprinting ? (certain ? ALWAYS : OPTIMISTIC) : (certain ? NEVER : PESSIMISTIC);
     }
+
 
     SIMULATION:
     for (boolean sprinting : sprintSelector) {
@@ -526,7 +527,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     Motion motion = movementData.motionProcessorContext;
     motion.setToBaseMotionFrom(movementData);
     Simulation simulation = simulator.simulate(
-      user, motion, movementData, configuration
+      user, motion, movementData.unmodifiable(), configuration
     );
     double distance = simulation.accuracy(movementData.motion());
     if (forceApply || inventoryData.handActive() == configuration.isHandActive() || distance < 0.001) {

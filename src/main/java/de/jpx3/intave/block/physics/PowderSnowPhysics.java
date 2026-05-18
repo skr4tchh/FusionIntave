@@ -23,7 +23,7 @@ final class PowderSnowPhysics implements BlockPhysic {
   }
 
   @Override
-  public Motion entityCollidedWithBlock(User user, Location location, Location from, double motionX, double motionY, double motionZ) {
+  public Motion entityInside(User user, Location location, Location from, double motionX, double motionY, double motionZ) {
     MovementMetadata movementData = user.meta().movement();
     Material block = VolatileBlockAccess.typeAccess(
       user, user.player().getWorld(),

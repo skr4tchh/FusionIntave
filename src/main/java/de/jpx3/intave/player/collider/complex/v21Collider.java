@@ -3,7 +3,7 @@ package de.jpx3.intave.player.collider.complex;
 import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.block.shape.BlockShapes;
-import de.jpx3.intave.check.movement.physics.SimulationEnvironment;
+import de.jpx3.intave.check.movement.physics.environment.SimulationEnvironment;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.Motion;
 import de.jpx3.intave.user.User;
@@ -42,6 +42,8 @@ public final class v21Collider implements Collider {
       edgeSneak = calculateBackOffFromEdge(user, environment, environment.stepHeight(), motion);
     }
 
+    Motion maybeBackOffFromEdgeResult = Motion.copyFrom(motion);
+
     // "collide"
     double initialX = motion.motionX;
     double initialY = motion.motionY;
@@ -58,6 +60,7 @@ public final class v21Collider implements Collider {
 
     return new ColliderResult(
       Motion.copyFrom(motion),
+      Motion.copyFrom(maybeBackOffFromEdgeResult),
       onGround,
       collidedHorizontally,
       collidedVertically,

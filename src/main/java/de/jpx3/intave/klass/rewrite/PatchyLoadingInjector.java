@@ -1,6 +1,5 @@
 package de.jpx3.intave.klass.rewrite;
 
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
 
 import java.io.*;

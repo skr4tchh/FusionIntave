@@ -234,6 +234,8 @@ public final class MovementMetadata implements SimulationEnvironment {
   private Material frictionMaterial = Material.AIR, previousFrictionMaterial = Material.AIR;
   private Material collideMaterial = Material.AIR, previousCollideMaterial = Material.AIR;
 
+  private ColliderResult beforeMoveCollider = null;
+
   private volatile BoundingBox boundingBox = BoundingBox.fromBounds(0, 0, 0, 0, 0, 0);
   private boolean boundingBoxSetup = false;
   @Nullable
@@ -764,14 +766,45 @@ public final class MovementMetadata implements SimulationEnvironment {
   }
 
   private float jumpFactor() {
-    World world = player.getWorld();
-    float f = jumpFactorOf(VolatileBlockAccess.typeAccess(user, world, positionX, positionY, positionZ));
+    float f = jumpFactorOf(VolatileBlockAccess.typeAccess(user, positionX, positionY, positionZ));
     float f1 = jumpFactorOf(frictionMaterial());
     return (double) f == 1.0D ? f1 : f;
   }
 
   private float jumpFactorOf(Material material) {
     return BlockProperties.of(material).jumpFactor();
+  }
+
+  private final Material bubbleColumnMaterial = Material.getMaterial("BUBBLE_COLUMN");
+
+  // Entity.getBlockSpeedFactor @ 1.19
+  public float blockSpeedFactor() {
+    if (user.meta().protocol().trailsAndTailsUpdate()) {
+      Material material = VolatileBlockAccess.typeAccess(user, positionX, positionY, positionZ);
+      float f = blockSpeedFactorOf(material);
+      if (!MaterialMagic.isWater(material) && material != bubbleColumnMaterial && material != null) {
+        if (Math.abs(f - 1.0f) < 0.00001f) {
+          return blockSpeedFactorOf(frictionMaterial());
+        }
+      }
+      return f;
+    } else {
+      return blockSpeedFactorOf(frictionMaterial());
+    }
+  }
+
+  private float blockSpeedFactorOf(Material material) {
+    return BlockProperties.of(material).speedFactor();
+  }
+
+  @Override
+  public void setPreMoveColliderResult(ColliderResult result) {
+    this.beforeMoveCollider = result;
+  }
+
+  @Override
+  public ColliderResult preMoveColliderResult() {
+    return beforeMoveCollider;
   }
 
   public boolean collidedWithBoat() {
@@ -1103,6 +1136,11 @@ public final class MovementMetadata implements SimulationEnvironment {
   @Override
   public double widthRounded() {
     return widthRounded;
+  }
+
+  @Override
+  public SimulationEnvironment unmodifiable() {
+    return UnmodifiableSimulationEnvironmentView.of(this);
   }
 
   @Override

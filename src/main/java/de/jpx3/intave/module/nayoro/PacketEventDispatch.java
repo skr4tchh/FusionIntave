@@ -21,9 +21,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static de.jpx3.intave.module.linker.packet.ListenerPriority.LOWEST;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.VEHICLE_MOVE;
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 import static de.jpx3.intave.module.nayoro.event.WindowActionEvent.Action.CLOSE;
 import static de.jpx3.intave.module.nayoro.event.WindowActionEvent.Action.INFER_OPEN;

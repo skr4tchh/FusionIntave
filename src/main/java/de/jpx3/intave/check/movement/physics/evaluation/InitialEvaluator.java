@@ -1,7 +1,7 @@
-package de.jpx3.intave.check.movement.physics.eval;
+package de.jpx3.intave.check.movement.physics.evaluation;
 
 import de.jpx3.intave.check.movement.physics.Simulation;
-import de.jpx3.intave.check.movement.physics.SimulationEnvironment;
+import de.jpx3.intave.check.movement.physics.environment.SimulationEnvironment;
 import de.jpx3.intave.user.User;
 
 import static java.lang.Math.abs;

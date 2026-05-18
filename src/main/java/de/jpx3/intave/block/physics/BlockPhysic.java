@@ -14,7 +14,7 @@ public interface BlockPhysic {
 
   // Called from #doBlockCollisions
   @Nullable
-  default Motion entityCollidedWithBlock(
+  default Motion entityInside(
     User user,
     Location location, Location from,
     double motionX, double motionY, double motionZ
@@ -23,7 +23,7 @@ public interface BlockPhysic {
   }
 
   @Nullable
-  default Motion entityCollidedWithBlock(User user, double motionX, double motionY, double motionZ) {
+  default Motion entityInside(User user, double motionX, double motionY, double motionZ) {
     return null;
   }
 
