@@ -60,7 +60,6 @@ import de.jpx3.intave.player.fake.event.FakePlayerEventService;
 import de.jpx3.intave.reflect.access.ReflectiveAccess;
 import de.jpx3.intave.resource.Resources;
 import de.jpx3.intave.resource.legacy.EncryptedLegacyResource;
-import de.jpx3.intave.security.PlayerListService;
 import de.jpx3.intave.share.FriendlyByteBuf;
 import de.jpx3.intave.share.link.WrapperConverter;
 import de.jpx3.intave.test.TestService;
@@ -126,7 +125,6 @@ public final class IntavePlugin extends JavaPlugin {
   private IntaveAccessService accessService;
   private IntaveAccess access;
   private YamlConfiguration configuration;
-  private PlayerListService blackListService; // module candidate
   private ScheduledUploadService uploadService; // module candidate
   private Analytics analytics; // module candidate
   private Metrics metrics;
@@ -229,7 +227,6 @@ public final class IntavePlugin extends JavaPlugin {
       ChunkProviderServerAccess.setup();
 
       trustFactorService = new TrustFactorService(this);
-      blackListService = new PlayerListService(this);
       cloud = new Cloud();
       cloud.init();
 
@@ -252,9 +249,6 @@ public final class IntavePlugin extends JavaPlugin {
 
       VERSION_DETAILS |= 0x100;
       VERSION_DETAILS |= 0x200;
-      if (IntaveControl.DEBUG_GRAYLIST) {
-        logger.info(blackListService.encryptedGrayKnowledgeData());
-      }
 
       boolean writeSuccessLog = true;
       try {
@@ -361,7 +355,6 @@ public final class IntavePlugin extends JavaPlugin {
       trustFactorService.setup();
       checkService.setup();
       fakePlayerEventService.setup();
-      blackListService.setup();
 //      analytics.setup();
 
       try {

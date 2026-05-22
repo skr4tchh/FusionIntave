@@ -22,7 +22,7 @@ check:
     # Mitigation mode
     #   Choose between AGGRESSIVE, CAREFUL, LENIENT, BARELY and SILENT
     #   FALSE POSITIVES -> REPORT THEM
-    mitigation: BARELY
+    mitigation: AGGRESSIVE
 
     # Check for NoSlowdown cheats?
     enforce-item-slowdown: true
@@ -144,7 +144,7 @@ check:
       100: "intave internals sendnotify &c{player}&7/{trust-color}&7 is interacting suspiciously #2"
 
   clickpatterns:
-    enabled: true
+    enabled: false
     # DO NOT BAN
     thresholds:
       50: "intave internals sendnotify &c{player}&7/{trust-color}&7 is clicking statistically anomalously (auto-clicker)"
@@ -153,7 +153,7 @@ check:
         - $kick$
 
   clickspeedlimiter:
-    enabled: true
+    enabled: false
     max-cps: 20
     thresholds:
       50: "intave internals sendnotify &c{player}&7/{trust-color}&7 is attacking too quickly"
@@ -175,6 +175,14 @@ check:
       50: "intave internals sendnotify &c{player}&7/{trust-color}&7 is sending invalid packets"
       100:
         - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for sending invalid packets"
+        - $ban$
+
+  multiactions:
+    enabled: true
+    thresholds:
+      5: "intave internals sendnotify &c{player}&7/{trust-color}&7 is failed multi actions"
+      10:
+        - "intave internals sendnotify &c{player}&7/{trust-color}&7 has been removed for failed multi actions"
         - $ban$
 
   placementanalysis:
@@ -237,11 +245,6 @@ storage:
   # Should Intave try to transfer VLs when switching between servers?
   recover-vl: true
 
-blacklist:
-  apply: true
-  message-in-chat: false
-  message: "&cYou are on an anti-cheat blacklist and can't join this server"
-
 proxy:
   enable: false
 
@@ -262,7 +265,7 @@ compatibility:
   no-transaction-obfuscation: false
 
 command:
-  hide: true
+  hide: false
   reroute:
     "/alerts": "/intave verbose"
     "/cps": "/intave cps"
@@ -270,12 +273,6 @@ command:
   # Apply a fix that disables command hide and reroute features,
   # but fixes a 1.12 bug that kicks players when they tab a command
   fix-tab-kicks: false
-
-rejoin:
-  # DO NOT DISABLE IN PRODUCTION
-  delay: 3600
-  refresh: true
-  message: "&cYou were removed recently, wait before connecting again"
 
 # You should disable any of these options **ONLY**
 # when experiencing serious problems and **ONLY** after reporting the issue to us.
@@ -293,9 +290,9 @@ fault-kicks:
 # Remove some data from packets used to slightly improve cheats
 filter:
   equipmentdata: false
-  health: true
+  health: false
   # Disable vanish if you have problems with weird proxy kicks
-  vanish: true
+  vanish: false
 
 logging:
   # Save logs to a file?

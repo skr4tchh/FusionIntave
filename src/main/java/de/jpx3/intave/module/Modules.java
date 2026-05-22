@@ -10,7 +10,6 @@ import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscriptionLinker;
 import de.jpx3.intave.module.linker.nayoro.NayoroEventSubscriptionLinker;
 import de.jpx3.intave.module.linker.packet.PacketSubscriptionLinker;
 import de.jpx3.intave.module.mitigate.CombatMitigator;
-import de.jpx3.intave.module.mitigate.ReconDelayLimiter;
 import de.jpx3.intave.module.mitigate.SetbackSimulator;
 import de.jpx3.intave.module.nayoro.Nayoro;
 import de.jpx3.intave.module.player.StorageLoader;
@@ -137,10 +136,6 @@ public final class Modules {
 
     public SetbackSimulator movement() {
       return find(SetbackSimulator.class);
-    }
-
-    public ReconDelayLimiter reconnectionLimiter() {
-      return find(ReconDelayLimiter.class);
     }
   }
 }

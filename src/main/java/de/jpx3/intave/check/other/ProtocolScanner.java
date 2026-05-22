@@ -8,6 +8,7 @@ import de.jpx3.intave.check.other.protocolscanner.SentSlotTwice;
 import de.jpx3.intave.check.other.protocolscanner.SkinBlinker;
 
 public final class ProtocolScanner extends Check {
+
   private final IntavePlugin plugin;
 
   public ProtocolScanner(IntavePlugin plugin) {
