@@ -239,7 +239,7 @@ public final class SimulationEvaluator {
       boolean offsetPositionInLiquid = MovementCharacteristics.isOffsetPositionInLiquid(
         player, movement.boundingBox(), receivedMotionX, liquidMotionY, receivedMotionZ
       );
-      boolean maybeCollidedHorizontally = Collision.nearSolidBlock(user, movement.boundingBox().grow(0.2));
+      boolean maybeCollidedHorizontally = Collision.nearSolidBlock(user, movement.boundingBox().grow(0.2, 0.5, 0.2));
       boolean targetMotion = Math.abs(receivedMotionY - 0.3) < 0.001 || Math.abs(receivedMotionY - 0.34) < 0.001 || Math.abs(receivedMotionY - 0.2470) < 0.001;
       if (maybeCollidedHorizontally && offsetPositionInLiquid && targetMotion) {
         verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, 0.7f);
