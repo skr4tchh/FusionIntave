@@ -69,7 +69,6 @@ import java.util.stream.Collectors;
 import static de.jpx3.intave.diagnostic.message.MessageCategory.SIMFLT;
 import static de.jpx3.intave.diagnostic.message.MessageCategory.SIMFUL;
 import static de.jpx3.intave.math.MathHelper.*;
-import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DISPLAY_IN_ALL_VERBOSE_MODES;
 import static de.jpx3.intave.share.ClientMath.floor;
 import static org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.ENDER_PEARL;
 
@@ -136,13 +135,6 @@ public final class Physics extends Check {
     this.simulationEvaluator = new SimulationEvaluator();
     setDefaultMitigationStrategy(MitigationStrategy.CAREFUL);
     this.fallDamageApplier = new FallDamageApplier();
-    linkCheckToPoseSimulators();
-  }
-
-  private void linkCheckToPoseSimulators() {
-    for (Simulator simulator : Simulators.simulators()) {
-      simulator.enterLinkage(this);
-    }
   }
 
   @DispatchTarget
@@ -153,7 +145,7 @@ public final class Physics extends Check {
     Simulator simulator = selectSimulator(user);
     movementData.setSimulator(simulator);
     movementData.stepHeight = simulator.stepHeight();
-    simulator.simulatePreInput(user, null, movementData);
+    simulator.simulatePreTick(user, null, movementData);
 
     Timings.CHECK_PHYSICS_PROC_TOT.start();
     predictFlyingPacketBeforeVelocity(user);
@@ -248,7 +240,7 @@ public final class Physics extends Check {
         }
       }
       Motion motion = new Motion(motionX, motionY, motionZ);
-      simulator.simulateAfterPosition(
+      simulator.simulateAfterTick(
         user,
         movementData,
         movementData.position(),
@@ -1149,48 +1141,6 @@ public final class Physics extends Check {
       key += " ";
     }
     return key;
-  }
-
-  public void applyFallDamageUpdate(User user) {
-    if (!user.hasPlayer()) {
-      return;
-    }
-    MovementMetadata movementData = user.meta().movement();
-    if (movementData.artificialFallDistance > 3.0F) {
-      float fallDistance = movementData.artificialFallDistance;
-      movementData.seenFallDamage = 0;
-//      movementData.inWaterSinceFallDamagePostCheck = false;
-//      Synchronizer.synchronizeDelayed(() -> user.tickFeedback(() -> {
-//        Synchronizer.synchronize(() -> postCheckFalldamage(user, movementData, fallDistance));
-//      }), 2);
-      movementData.artificialFallDistance = 0F;
-    }
-  }
-
-  private void postCheckFalldamage(User user, MovementMetadata movementData, float fallDistance) {
-    Player player = user.player();
-    if (!movementData.inWaterSinceFallDamagePostCheck) {
-      float seenDamage = movementData.seenFallDamage;
-      float estimatedDamage = fallDamageApplier.distanceToDamage(player, fallDistance);
-//      player.sendMessage("Fall damage: " + seenDamage + " / " + estimatedDamage + " (" + fallDistance + ")");
-      if (seenDamage < estimatedDamage - 1.2F) {
-        float missingDistance = fallDamageApplier.remainingDistance(player, seenDamage, estimatedDamage);
-//        player.sendMessage("Missing distance: " + missingDistance);
-        if (missingDistance > 0.0F) {
-          Violation violation = Violation.builderFor(Physics.class)
-            .forPlayer(player)
-            .withMessage("did not take sufficient fall damage")
-            .withDetails("missing " + formatDouble(missingDistance, 2) + " blocks")
-            .withVL(0)
-            .appendFlags(DISPLAY_IN_ALL_VERBOSE_MODES)
-            .build();
-          Modules.violationProcessor().processViolation(violation);
-          movementData.dealCustomFallDamage = true;
-          player.damage(estimatedDamage - seenDamage);
-          movementData.dealCustomFallDamage = false;
-        }
-      }
-    }
   }
 
   @BukkitEventSubscription

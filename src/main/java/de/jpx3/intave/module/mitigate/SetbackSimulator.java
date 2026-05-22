@@ -277,7 +277,6 @@ public final class SetbackSimulator extends Module {
 //      violationLevelData.physicsOffset -= 0.3f;
 
       if (movementData.onGround) {
-        physicsCheck.applyFallDamageUpdate(user);
         movementData.artificialFallDistance = 0;
       }
 

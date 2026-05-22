@@ -38,7 +38,7 @@ import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_14;
 
 class BaseSimulator extends Simulator {
   @Override
-  public void simulatePreInput(
+  public void simulatePreTick(
     User user, Motion motion,
     SimulationEnvironment environment
   ) {
@@ -110,7 +110,7 @@ class BaseSimulator extends Simulator {
   }
 
   @Override
-  public Simulation simulatePrePosition(
+  public Simulation simulateTick(
     User user,
     Motion motion,
     SimulationEnvironment environment,
@@ -454,7 +454,7 @@ class BaseSimulator extends Simulator {
   }
 
   @Override
-  public void simulateAfterPosition(
+  public void simulateAfterTick(
     User user,
     SimulationEnvironment environment,
     Position position, Motion motion
@@ -538,10 +538,9 @@ class BaseSimulator extends Simulator {
       updateAquatics(user, movementData);
     }
     if (onGround) {
-      physics().applyFallDamageUpdate(user);
       movementData.artificialFallDistance = 0;
     } else if (motionY < 0.0D) {
-      movementData.artificialFallDistance += -motionY;
+      movementData.artificialFallDistance += (float) -motionY;
     }
   }
 

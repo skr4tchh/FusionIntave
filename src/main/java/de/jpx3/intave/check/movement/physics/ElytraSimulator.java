@@ -16,7 +16,7 @@ import static de.jpx3.intave.share.ClientMath.sin;
 
 final class ElytraSimulator extends BaseSimulator {
   @Override
-  public Simulation simulatePrePosition(
+  public Simulation simulateTick(
     User user, Motion motion,
     SimulationEnvironment environment,
     MovementConfiguration configuration
@@ -159,11 +159,6 @@ final class ElytraSimulator extends BaseSimulator {
     if (interpolations != 0) {
       movementData.resetFlyingPacketAccurate();
     }
-  }
-
-  @Override
-  public String debugName() {
-    return "ELYTRA";
   }
 
   @Override

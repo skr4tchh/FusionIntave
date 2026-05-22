@@ -28,7 +28,7 @@ import static de.jpx3.intave.share.ClientMath.floor;
 
 public final class BoatSimulator extends BaseSimulator {
   @Override
-  public Simulation simulatePrePosition(
+  public Simulation simulateTick(
     User user, Motion motion,
     SimulationEnvironment environment,
     MovementConfiguration configuration
@@ -242,7 +242,7 @@ public final class BoatSimulator extends BaseSimulator {
   }
 
   @Override
-  public void simulateAfterPosition(
+  public void simulateAfterTick(
     User user, SimulationEnvironment environment,
     Position position,
     Motion motion
@@ -256,11 +256,6 @@ public final class BoatSimulator extends BaseSimulator {
     Player player = user.player();
     Synchronizer.synchronize(player::leaveVehicle);
     environment.dismountRidingEntity("Boat setback");
-  }
-
-  @Override
-  public String debugName() {
-    return "BOAT";
   }
 
   @Override

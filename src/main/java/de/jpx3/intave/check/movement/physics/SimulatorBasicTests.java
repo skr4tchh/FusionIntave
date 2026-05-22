@@ -103,7 +103,7 @@ public final class SimulatorBasicTests extends Tests {
     environment.setAiMovementSpeed(0.1f);
 
     Motion afterFirstMotion = Motion.newEmpty();
-    simulator.simulateAfterPosition(
+    simulator.simulateAfterTick(
       testUser,
       environment,
       environment.position(),
@@ -127,7 +127,7 @@ public final class SimulatorBasicTests extends Tests {
       environment.setPositionY(environment.positionY() + motionY);
       environment.setPositionZ(environment.positionZ() + motionZ);
 
-      Simulation simulation = simulator.simulatePrePosition(
+      Simulation simulation = simulator.simulateTick(
         testUser,
         environment.mutableBaseMotionCopy(),
         environment.unmodifiable(),
@@ -141,7 +141,7 @@ public final class SimulatorBasicTests extends Tests {
       }
 
       Motion modifiableSimulationMotion = simulation.motion();
-      simulator.simulateAfterPosition(
+      simulator.simulateAfterTick(
         testUser,
         environment,
         environment.position(),

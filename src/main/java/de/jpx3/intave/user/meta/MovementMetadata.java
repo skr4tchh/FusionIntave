@@ -80,10 +80,8 @@ public final class MovementMetadata implements SimulationEnvironment {
   public float artificialFallDistance;
   public boolean dealCustomFallDamage;
   public boolean inWaterSinceFallDamagePostCheck;
-  public float seenFallDamage;
   public double gravity;
   public boolean outsideBorder = true;
-  public Motion motionProcessorContext = new Motion();
   public Vector lookVector = new Vector();
   public double verifiedPositionX, verifiedPositionY, verifiedPositionZ;
   public String verifiedPositionOrigin;
@@ -108,7 +106,6 @@ public final class MovementMetadata implements SimulationEnvironment {
   public boolean canResetMotion;
   public int pastNearbyCollisionInaccuracy = 10;
   public float frictionMultiplier;
-  public float genericMovementSpeedAttribute;
   public int lastPositionUpdate;
   @Nullable
   public Fluid interactingFluid;

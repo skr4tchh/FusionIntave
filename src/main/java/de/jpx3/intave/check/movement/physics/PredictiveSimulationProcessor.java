@@ -65,7 +65,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
       movementData.sprintingAllowed(),
       jumped, meta.inventory().handActive(), false
     );
-	  return simulator.simulatePrePosition(user, motion, movementData, configuration);
+	  return simulator.simulateTick(user, motion, movementData, configuration);
   }
 
   private static final double REQUIRED_ACCURACY_FOR_QUICK_PROC_EXIT = 0.002;
@@ -220,7 +220,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     movementData.keyForward = configuration.forward();
     movementData.keyStrafe = configuration.strafe();
     movementData.refreshFriction(sprinting);
-    Simulation simulation = simulator.simulatePrePosition(
+    Simulation simulation = simulator.simulateTick(
       user, movementData.mutableBaseMotionCopy(),
       movementData.unmodifiable(), configuration
     );
@@ -328,7 +328,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     movementData.keyForward = configuration.forward();
     movementData.keyStrafe = configuration.strafe();
     movementData.refreshFriction(sprinting);
-    Simulation simulationResult = simulator.simulatePrePosition(
+    Simulation simulationResult = simulator.simulateTick(
       user, movementData.mutableBaseMotionCopy(),
       movementData.unmodifiable(), configuration
     );
@@ -510,7 +510,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
   ) {
     MovementMetadata movementData = user.meta().movement();
     InventoryMetadata inventoryData = user.meta().inventory();
-    Simulation simulation = simulator.simulatePrePosition(
+    Simulation simulation = simulator.simulateTick(
       user, movementData.mutableBaseMotionCopy(),
       movementData.unmodifiable(), configuration
     );

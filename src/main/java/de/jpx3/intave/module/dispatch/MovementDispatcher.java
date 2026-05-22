@@ -60,7 +60,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -1041,21 +1040,6 @@ public final class MovementDispatcher extends Module {
     });
 
     reader.release();
-  }
-
-  @BukkitEventSubscription(
-    priority = EventPriority.LOWEST,
-    ignoreCancelled = false // this is correct
-  )
-  public void preventVanillaFallDamage(EntityDamageEvent event) {
-    if (!(event.getEntity() instanceof Player)) {
-      return;
-    }
-    User user = UserRepository.userOf((Player) event.getEntity());
-    MovementMetadata movementData = user.meta().movement();
-    if (event.getCause() == EntityDamageEvent.DamageCause.FALL && !movementData.dealCustomFallDamage) {
-      movementData.seenFallDamage = (float) event.getOriginalDamage(EntityDamageEvent.DamageModifier.BASE);
-    }
   }
 
   @PacketSubscription(
