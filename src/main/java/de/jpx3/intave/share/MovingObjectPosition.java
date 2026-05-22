@@ -69,9 +69,9 @@ public class MovingObjectPosition {
     if (blockRaytrace == null) {
       return none();
     }
-    Vector direction = to.clone().subtract(from).normalize();
+    Vector direction = to.subtract(from).normalize();
     double distance = blockRaytrace.lengthOffset();
-    Position hit = Position.of(from.clone().add(direction.multiply(distance)));
+    Position hit = from.add(direction.multiply(distance));
 
     return new MovingObjectPosition(
       MovingObjectType.BLOCK,

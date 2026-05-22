@@ -14,10 +14,10 @@ import de.jpx3.intave.player.collider.complex.ColliderResult;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.ClientMath;
 import de.jpx3.intave.share.Motion;
+import de.jpx3.intave.share.Position;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MetadataBundle;
 import de.jpx3.intave.user.meta.MovementMetadata;
-import de.jpx3.intave.user.meta.ViolationMetadata;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -26,9 +26,9 @@ import javax.annotation.Nullable;
 import static de.jpx3.intave.share.ClientMath.ceil;
 import static de.jpx3.intave.share.ClientMath.floor;
 
-public final class BoatSimulator extends Simulator {
+public final class BoatSimulator extends BaseSimulator {
   @Override
-  public Simulation simulate(
+  public Simulation simulatePrePosition(
     User user, Motion motion,
     SimulationEnvironment environment,
     MovementConfiguration configuration
@@ -242,20 +242,13 @@ public final class BoatSimulator extends Simulator {
   }
 
   @Override
-  public void prepareNextTick(User user, SimulationEnvironment environment, double positionX, double positionY, double positionZ, double motionX, double motionY, double motionZ) {
-    Motion motion = environment.motion();
-    motion.setTo(motionX, motionY, motionZ);
-    ViolationMetadata violationMetadata = user.meta().violationLevel();
-
-    BoundingBox boundingBox = BoundingBox.fromPosition(user, environment, positionX, positionY, positionZ);
+  public void simulateAfterPosition(
+    User user, SimulationEnvironment environment,
+    Position position,
+    Motion motion
+  ) {
+    BoundingBox boundingBox = BoundingBox.fromPosition(user, environment, position);
     environment.setBoundingBox(boundingBox);
-
-    if (!violationMetadata.isInActiveTeleportBundle) {
-//      environment.setBaseMotionX(motion.motionX);
-//      environment.setBaseMotionY(motion.motionY);
-//      environment.setBaseMotionZ(motion.motionZ);
-      environment.setBaseMotion(motion);
-    }
   }
 
   @Override

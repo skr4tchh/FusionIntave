@@ -315,7 +315,7 @@ public final class InteractionEmulator implements EventProcessor {
         movement.positionY + movement.eyeHeight(),
         movement.positionZ
       );
-      Position endOfRaytrace = Position.empty();
+      Position endOfRaytrace = Position.mutableEmpty();
       if (interaction.hasRaytraceResult()) {
         MovingObjectPosition movingObjectPosition = interaction.raytraceResult();
         endOfRaytrace = movingObjectPosition.hitVec.toPosition();

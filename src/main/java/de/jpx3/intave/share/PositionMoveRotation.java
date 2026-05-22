@@ -25,7 +25,7 @@ public final class PositionMoveRotation {
   public PositionMoveRotation(
     Position position, Motion motion, Rotation rotation
   ) {
-    this.position = position;
+    this.position = position.mutable();
     this.motion = motion;
     this.rotation = rotation;
   }
@@ -60,7 +60,7 @@ public final class PositionMoveRotation {
     Set<Relative> relativeSet
   ) {
     Position keepFromOldPosition = current.position().filtered(relativeSet);
-    Position newPosition = keepFromOldPosition.add(change.position());
+    Position newPosition = keepFromOldPosition.add(change.position()).mutable();
     Rotation keepFromOldRotation = current.rotation().filtered(relativeSet);
     Rotation newRotation = keepFromOldRotation.add(change.rotation());
     Motion keepFromOldMotion = current.motion().filtered(relativeSet);

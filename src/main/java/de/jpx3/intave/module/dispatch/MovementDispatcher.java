@@ -582,15 +582,6 @@ public final class MovementDispatcher extends Module {
 
       attackData.updatePerfectRotation();
 
-/*      if (inventoryData.awaitingSlotSet != -1) {
-        Synchronizer.synchronize(() -> {
-          int awaitingSlotSet = inventoryData.awaitingSlotSet;
-          if (awaitingSlotSet != -1) {
-            player.getInventory().setHeldItemSlot(awaitingSlotSet);
-            inventoryData.awaitingSlotSet = -1;
-          }
-        });
-      }*/
       updatePotionEffects(user);
       movementData.canResetMotion = false;
     } else {

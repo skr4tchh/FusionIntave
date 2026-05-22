@@ -221,7 +221,6 @@ public final class Raytracing {
       }
     }
 
-
     if (lastEyeVector == null) {
       lastEyeVector = positionEyes(player, Pose.STANDING, prevPosX, prevPosY, prevPosZ);
     }

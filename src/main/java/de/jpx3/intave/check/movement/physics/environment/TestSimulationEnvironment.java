@@ -273,11 +273,6 @@ public final class TestSimulationEnvironment implements SimulationEnvironment {
   }
 
   @Override
-  public Motion motionProcessorContext() {
-    return motionProcessorContext;
-  }
-
-  @Override
   public boolean motionXReset() {
     return false;
   }
@@ -534,6 +529,11 @@ public final class TestSimulationEnvironment implements SimulationEnvironment {
 
   @Override
   public void resetPushedByWaterFlowTicks() {
+
+  }
+
+  @Override
+  public void updateEyesInWater() {
 
   }
 

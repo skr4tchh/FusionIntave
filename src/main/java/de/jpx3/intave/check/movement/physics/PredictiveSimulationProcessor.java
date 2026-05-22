@@ -58,26 +58,14 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     movementData.physicsJumped = jumped;
     KeyPressStudy.enterKeyPress(movementData.keyForward, movementData.keyStrafe);
 
-//    List<Superposition<?>> superpositions = movementData.superpositions();
-//    for (Superposition<?> superposition : superpositions) {
-//      superposition.applyVariation(0);
-//    }
+    Motion motion = movementData.mutableBaseMotionCopy();
 
-    Motion motion = movementData.motionProcessorContext.copy();
-    motion.setToBaseMotionFrom(movementData);
     MovementConfiguration configuration = MovementConfiguration.select(
       forward, strafe, 0,
       movementData.sprintingAllowed(),
       jumped, meta.inventory().handActive(), false
     );
-    Simulation simulate = simulator.simulate(user, motion, movementData, configuration);
-
-    // what to do here?
-//    for (Superposition<?> superposition : superpositions) {
-//      superposition.resetVariation(0);
-//      superposition.collapseVariation(0);
-//    }
-    return simulate;
+	  return simulator.simulatePrePosition(user, motion, movementData, configuration);
   }
 
   private static final double REQUIRED_ACCURACY_FOR_QUICK_PROC_EXIT = 0.002;
@@ -169,7 +157,6 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     MetadataBundle meta = user.meta();
     MovementMetadata movementData = meta.movement();
     InventoryMetadata inventoryData = meta.inventory();
-    Motion motion = movementData.motionProcessorContext;
     double lastMotionX = movementData.baseMotionX;
     double lastMotionZ = movementData.baseMotionZ;
     boolean jumped = false;
@@ -197,7 +184,6 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
       movementData.physicsJumped = false;
       movementData.keyForward = 0;
       movementData.keyStrafe = 0;
-      motion.setToBaseMotionFrom(movementData);
       Timings.CHECK_PHYSICS_PROC_BIA.stop();
       Timings.CHECK_PHYSICS_PROC_PRED_BIA.stop();
       return Simulation.invalid();
@@ -231,12 +217,12 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
       configuration = configuration.withoutKeypress();
     }
     movementData.physicsJumped = jumped;
-    motion.setTo(movementData.baseMotion());
     movementData.keyForward = configuration.forward();
     movementData.keyStrafe = configuration.strafe();
     movementData.refreshFriction(sprinting);
-    Simulation simulation = simulator.simulate(
-      user, motion, movementData.unmodifiable(), configuration
+    Simulation simulation = simulator.simulatePrePosition(
+      user, movementData.mutableBaseMotionCopy(),
+      movementData.unmodifiable(), configuration
     );
     Timings.CHECK_PHYSICS_PROC_PRED_BIA.stop();
     Timings.CHECK_PHYSICS_PROC_BIA.stop();
@@ -290,8 +276,6 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     MetadataBundle meta = user.meta();
     MovementMetadata movementData = meta.movement();
     InventoryMetadata inventoryData = meta.inventory();
-    ProtocolMetadata protocol = meta.protocol();
-    Motion motion = movementData.motionProcessorContext;
 
     int keyForward = movementData.lastKeyForward;
     int keyStrafe = movementData.lastKeyStrafe;
@@ -341,11 +325,13 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     }
     movementData.physicsJumped = configuration.isJumping();
 //    movementData.sprintMove = configuration.isSprinting();
-    motion.setToBaseMotionFrom(movementData);
     movementData.keyForward = configuration.forward();
     movementData.keyStrafe = configuration.strafe();
     movementData.refreshFriction(sprinting);
-    Simulation simulationResult = simulator.simulate(user, motion, movementData.unmodifiable(), configuration);
+    Simulation simulationResult = simulator.simulatePrePosition(
+      user, movementData.mutableBaseMotionCopy(),
+      movementData.unmodifiable(), configuration
+    );
     Timings.CHECK_PHYSICS_PROC_LK_BIA.stop();
     Timings.CHECK_PHYSICS_PROC_BIA.stop();
     return simulationResult;
@@ -524,10 +510,9 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
   ) {
     MovementMetadata movementData = user.meta().movement();
     InventoryMetadata inventoryData = user.meta().inventory();
-    Motion motion = movementData.motionProcessorContext;
-    motion.setToBaseMotionFrom(movementData);
-    Simulation simulation = simulator.simulate(
-      user, motion, movementData.unmodifiable(), configuration
+    Simulation simulation = simulator.simulatePrePosition(
+      user, movementData.mutableBaseMotionCopy(),
+      movementData.unmodifiable(), configuration
     );
     double distance = simulation.accuracy(movementData.motion());
     if (forceApply || inventoryData.handActive() == configuration.isHandActive() || distance < 0.001) {

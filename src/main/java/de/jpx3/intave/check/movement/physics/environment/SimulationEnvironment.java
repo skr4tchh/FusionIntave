@@ -64,7 +64,7 @@ public interface SimulationEnvironment {
   double motionY();
   double motionZ();
 
-  default Motion baseMotion() {
+  default Motion mutableBaseMotionCopy() {
     return new Motion(baseMotionX(), baseMotionY(), baseMotionZ());
   }
   double baseMotionX();
@@ -79,8 +79,6 @@ public interface SimulationEnvironment {
   void setBaseMotionX(double baseMotionX);
   void setBaseMotionY(double baseMotionY);
   void setBaseMotionZ(double baseMotionZ);
-
-  Motion motionProcessorContext();
 
   boolean motionXReset();
   boolean motionZReset();
@@ -159,6 +157,8 @@ public interface SimulationEnvironment {
   void increaseVehicleTicks();
   void resetPushedByWaterFlowTicks();
 
+  @Deprecated
+  void updateEyesInWater();
   void aquaticUpdateLavaReset();
 
   float height();

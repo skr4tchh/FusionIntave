@@ -16,7 +16,7 @@ import static de.jpx3.intave.share.ClientMath.sin;
 
 final class ElytraSimulator extends BaseSimulator {
   @Override
-  public Simulation simulate(
+  public Simulation simulatePrePosition(
     User user, Motion motion,
     SimulationEnvironment environment,
     MovementConfiguration configuration

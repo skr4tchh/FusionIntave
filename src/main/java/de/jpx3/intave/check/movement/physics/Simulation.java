@@ -1,7 +1,9 @@
 package de.jpx3.intave.check.movement.physics;
 
+import de.jpx3.intave.check.movement.physics.environment.SimulationEnvironment;
 import de.jpx3.intave.player.collider.complex.ColliderResult;
 import de.jpx3.intave.share.Motion;
+import de.jpx3.intave.share.Position;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserLocal;
 
@@ -52,6 +54,15 @@ public final class Simulation {
 
   public String details() {
     return details;
+  }
+
+  public boolean resultsInFlyingPacket(
+    SimulationEnvironment environment,
+    double limit
+  ) {
+    Position lastPosition = environment.lastPosition();
+    Position newPosition = lastPosition.add(motion());
+	  return lastPosition.distance(newPosition) < limit;
   }
 
   public ColliderResult collider() {

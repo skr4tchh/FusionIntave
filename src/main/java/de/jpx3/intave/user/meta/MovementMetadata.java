@@ -14,7 +14,6 @@ import de.jpx3.intave.annotate.Nullable;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.block.fluid.Fluid;
-import de.jpx3.intave.block.fluid.Fluids;
 import de.jpx3.intave.block.physics.BlockProperties;
 import de.jpx3.intave.block.physics.MaterialMagic;
 import de.jpx3.intave.block.shape.BlockShape;
@@ -390,7 +389,6 @@ public final class MovementMetadata implements SimulationEnvironment {
       yawCosine = cos(rotationYawInRadians);
     }
     recheckWebStateFromLastTick();
-    updateEntityMovement();
     if (hasMovement || hasRotation) {
       updatePose();
     }
@@ -620,24 +618,12 @@ public final class MovementMetadata implements SimulationEnvironment {
   }
 
   @Deprecated
-  private void updateEntityMovement() {
-//    ConnectionMetadata connectionMetadata = user.meta().connection();
-//    for (Entity value : connectionMetadata.entities()) {
-//      value.entityPlayerMoveUpdate();
-//    }
-//    for (Map.Entry<Integer, WrappedEntity> entry : entityMap.entrySet()) {
-//      WrappedEntity entity = entry.getValue();
-//      entity.entityPlayerMoveUpdate();
-//    }
-  }
-
   public void updateEyesInWater() {
     double yPos = positionY + eyeHeight() - (double) 0.11111f;
     this.eyesInWater = interactingFluid != null && interactingFluid.isOfWater();
     this.interactingFluid = null;
 
-//    Fluid fluid = Fluids.fluidAt(user, positionX, yPos, positionZ);
-    Fluid fluid = Fluids.fluidAt(user, positionX, yPos, positionZ);
+    Fluid fluid = VolatileBlockAccess.fluidAccess(user, positionX, yPos, positionZ);
     if (fluid.isOfWater()) {
       double d1 = (float) floor(yPos) + 1.0f;
       if (d1 > yPos) {
@@ -1205,7 +1191,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   }
 
   @Override
-  public Motion baseMotion() {
+  public Motion mutableBaseMotionCopy() {
     return new Motion(baseMotionX, baseMotionY, baseMotionZ);
   }
 
@@ -1246,10 +1232,6 @@ public final class MovementMetadata implements SimulationEnvironment {
     this.baseMotionZ = baseMotionZ;
   }
 
-  @Override
-  public Motion motionProcessorContext() {
-    return motionProcessorContext;
-  }
 
   @Override
   public boolean motionXReset() {
@@ -1490,7 +1472,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public void setVehicle(Entity ridingEntity) {
     this.attachVehicleTicks = 0;
     this.invalidVehiclePositionTicks = 0;
-    this.attachMoveDistance = ridingEntity.distanceTo(lastPosition());
+    this.attachMoveDistance = ridingEntity.distanceTo(lastPosition().toBukkitVec());
     this.vehicle = ridingEntity;
 
     String entityName = ridingEntity.entityName();

@@ -433,7 +433,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
       movementData.baseMotionY = 0.0;
       movementData.baseMotionZ = 0.0;
     } else {
-      Motion keepMotion = movementData.baseMotion().filtered(teleportRelatives);
+      Motion keepMotion = movementData.mutableBaseMotionCopy().filtered(teleportRelatives);
       Motion newMotion = keepMotion.add(teleportMotionModify);
       movementData.setBaseMotion(newMotion);
       movementData.teleportMotion.setNull();

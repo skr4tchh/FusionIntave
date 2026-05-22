@@ -15,10 +15,12 @@ import de.jpx3.intave.annotate.DispatchTarget;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.cache.BlockCache;
 import de.jpx3.intave.block.collision.Collision;
+import de.jpx3.intave.block.collision.modifier.PowderSnowCollisionModifier;
 import de.jpx3.intave.block.fluid.Fluid;
 import de.jpx3.intave.block.fluid.Fluids;
 import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.block.type.BlockTypeAccess;
+import de.jpx3.intave.block.type.MaterialSearch;
 import de.jpx3.intave.block.variant.BlockVariantNativeAccess;
 import de.jpx3.intave.check.Check;
 import de.jpx3.intave.check.CheckConfiguration.CheckSettings;
@@ -151,11 +153,8 @@ public final class Physics extends Check {
     Simulator simulator = selectSimulator(user);
     movementData.setSimulator(simulator);
     movementData.stepHeight = simulator.stepHeight();
-    if (clientData.waterUpdate() && movementData.sneaking && movementData.inWater) {
-      handleSneakInWater(user);
-    }
-    updateAquatics(user);
-    simulateMotionClamp(user);
+    simulator.simulatePreInput(user, null, movementData);
+
     Timings.CHECK_PHYSICS_PROC_TOT.start();
     predictFlyingPacketBeforeVelocity(user);
     // simulation
@@ -206,29 +205,6 @@ public final class Physics extends Check {
     }
   }
 
-  private void simulateMotionClamp(User user) {
-    MovementMetadata movementData = user.meta().movement();
-    double resetMotion = movementData.resetMotion();
-
-    if (user.meta().protocol().newMotionClampLogic()) {
-      if (movementData.baseMotion().horizontalLengthSqr() < 0.000009) {
-        movementData.baseMotionX = 0;
-        movementData.baseMotionZ = 0;
-      }
-    } else {
-      if (Math.abs(movementData.baseMotionX) < resetMotion) {
-        movementData.baseMotionX = 0.0;
-      }
-      if (Math.abs(movementData.baseMotionZ) < resetMotion) {
-        movementData.baseMotionZ = 0.0;
-      }
-    }
-
-    if (Math.abs(movementData.baseMotionY) < resetMotion) {
-      movementData.baseMotionY = 0.0;
-    }
-  }
-
   private Simulator selectSimulator(User user) {
     MovementMetadata movementData = user.meta().movement();
     ProtocolMetadata protocol = user.meta().protocol();
@@ -247,9 +223,14 @@ public final class Physics extends Check {
     return Simulators.PLAYER;
   }
 
+  private static final Material POWDER_SNOW = MaterialSearch.materialThatIsNamed("POWDER_SNOW");
+
   @DispatchTarget
   public void endMovement(User user, boolean hasMovement) {
+    Player player = user.player();
     MovementMetadata movementData = user.meta().movement();
+    ViolationMetadata violationMetadata = user.meta().violationLevel();
+
     double motionX = movementData.endMotionXOverride ? movementData.endMotionXOverrideValue : movementData.motionX();
     double motionY = movementData.endMotionYOverride ? movementData.endMotionYOverrideValue : movementData.motionY();
     double motionZ = movementData.endMotionZOverride ? movementData.endMotionZOverrideValue : movementData.motionZ();
@@ -259,19 +240,48 @@ public final class Physics extends Check {
         if (movementData.physicsJumped && movementData.lastVelocityApplicableForJumpDenial()) {
           movementData.physicsJumpedOverrideVL++;
           if (movementData.applyJumpCM()) {
-            SibylBroadcast.broadcast("[CM] " + user.player().getName() + " jumped with velocity");
+            SibylBroadcast.broadcast("[CM] " + player.getName() + " jumped with velocity");
             user.nerfOnce(AttackNerfStrategy.DMG_HIGH, "92");
           }
         } else if (movementData.physicsJumpedOverrideVL > 0) {
           movementData.physicsJumpedOverrideVL = Math.max(0, movementData.physicsJumpedOverrideVL - 0.5);
         }
       }
-      simulator.prepareNextTick(
+      Motion motion = new Motion(motionX, motionY, motionZ);
+      simulator.simulateAfterPosition(
         user,
         movementData,
-        movementData.positionX, movementData.positionY, movementData.positionZ,
-        motionX, motionY, motionZ
+        movementData.position(),
+        motion
       );
+
+      if (!violationMetadata.isInActiveTeleportBundle) {
+        if (violationMetadata.doNotVerifyBaseMotion) {
+          violationMetadata.doNotVerifyBaseMotion = false;
+        } else {
+          PacketLogging logging = Modules.tracker().packetLogging();
+          logging.logSystemMessage(user, () -> "MOTION LOGIC: Base motion override: " + motion.motionX + " " + motion.motionY + " " + motion.motionZ);
+          movementData.setBaseMotion(motion);
+        }
+      }
+
+      movementData.increaseFlyingPacketTicks();
+      movementData.increaseEntityUseTicks();
+      movementData.increasePlayerAttackTicks();
+      movementData.increasePushedByWaterFlowTicks();
+
+      if (movementData.onGround()) {
+        movementData.resetPhysicsPacketRelinkFlyVL();
+      }
+
+      Material type = VolatileBlockAccess.typeAccess(user, player.getWorld(), movementData.position());
+      boolean climbingInPowderSnow = POWDER_SNOW != null && type == POWDER_SNOW && PowderSnowCollisionModifier.canWalkOnPowderSnow(player);
+      if (climbingInPowderSnow) {
+        movementData.resetPowderSnowTicks();
+      } else {
+        movementData.increasePowderSnowTicks();
+      }
+      movementData.increaseEdgeSneakTickGrants();
     }
     movementData.endMotionXOverride = false;
     movementData.endMotionYOverride = false;
@@ -331,42 +341,6 @@ public final class Physics extends Check {
           movementData.setPastFlyingPacketAccurate(0);
         }
       }
-    }
-  }
-
-  public void updateAquatics(User user) {
-    MovementMetadata movementData = user.meta().movement();
-    updateInWater(user);
-    updateInLava(user);
-    movementData.updateEyesInWater();
-  }
-
-  private void handleSneakInWater(User user) {
-    MovementMetadata movementData = user.meta().movement();
-    movementData.baseMotionY -= 0.04F;
-  }
-
-  private void updateInWater(User user) {
-    MetadataBundle meta = user.meta();
-    ProtocolMetadata clientData = meta.protocol();
-    MovementMetadata movementData = meta.movement();
-    BoundingBox boundingBox = movementData.boundingBox();
-    if (!clientData.waterUpdate()) {
-      boundingBox = boundingBox.grow(0.0D, -0.4000000059604645D, 0.0D);
-    }
-    boundingBox = boundingBox.shrink(0.001D);
-    movementData.inWater = user.waterflow().applyFlowTo(user, boundingBox);
-    if (movementData.inWater) {
-      movementData.inWaterSinceFallDamagePostCheck = true;
-      movementData.pastWaterMovement = 0;
-      movementData.artificialFallDistance = 0;
-    }
-  }
-
-  private void updateInLava(User user) {
-    MovementMetadata movementData = user.meta().movement();
-    if (movementData.inLava()) {
-      movementData.pastLavaMovement = 0;
     }
   }
 
@@ -942,6 +916,9 @@ public final class Physics extends Check {
 //      debug += " x:" + formatDouble(movementData.motionX(), 4) + " z:" + formatDouble(movementData.motionZ(), 4);
       if (!simulation.details().isEmpty()) {
         debug += ChatColor.ITALIC + " " + simulation.details() + chatColor;
+      }
+      if (simulation.resultsInFlyingPacket(movementData, 0.03)) {
+        debug += " nwbf";
       }
       if (movementData.fireworkRocketsTicks < 100) {
         debug += ChatColor.ITALIC + " frt:" + movementData.fireworkRocketsTicks + " frp: " + movementData.fireworkRocketsPower + chatColor;

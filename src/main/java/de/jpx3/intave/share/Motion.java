@@ -192,4 +192,8 @@ public final class Motion {
     }
     throw new IllegalArgumentException("Unknown axis: " + axis);
 	}
+
+  public static Motion newEmpty() {
+    return new Motion(0.0, 0.0, 0.0);
+  }
 }

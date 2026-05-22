@@ -102,14 +102,15 @@ public final class SimulatorBasicTests extends Tests {
     environment.setFriction(0.09998f);
     environment.setAiMovementSpeed(0.1f);
 
-    simulator.prepareNextTick(
+    Motion afterFirstMotion = Motion.newEmpty();
+    simulator.simulateAfterPosition(
       testUser,
       environment,
-      environment.positionX(),
-      environment.positionY(),
-      environment.positionZ(),
-      0, 0, 0
+      environment.position(),
+      afterFirstMotion
     );
+
+    environment.setBaseMotion(afterFirstMotion);
 
     for (int i = 1; i < relativeMotion.length; i++) {
       double lastMotionX = relativeMotion[i - 1][0];
@@ -126,10 +127,10 @@ public final class SimulatorBasicTests extends Tests {
       environment.setPositionY(environment.positionY() + motionY);
       environment.setPositionZ(environment.positionZ() + motionZ);
 
-      Simulation simulation = simulator.simulate(
+      Simulation simulation = simulator.simulatePrePosition(
         testUser,
-        environment.baseMotion(),
-        environment,
+        environment.mutableBaseMotionCopy(),
+        environment.unmodifiable(),
         configuration
       );
 
@@ -139,19 +140,15 @@ public final class SimulatorBasicTests extends Tests {
         fail("Simulation accuracy deviation: " + accuracy);
       }
 
-//      if (environment.positionY() < 0) {
-//        fail("Dummy player fell through the floor: ypos=" + environment.positionY() + " ymotion=" + motionY);
-//      }
-
-//      System.out.println("#" + i + " (" + lastMotion + " -> " + simulation.motion() + ") accuracy: " + accuracy);
-
-      simulator.prepareNextTick(
+      Motion modifiableSimulationMotion = simulation.motion();
+      simulator.simulateAfterPosition(
         testUser,
         environment,
         environment.position(),
-        simulation.motion()
+        modifiableSimulationMotion
       );
 
+      environment.setBaseMotion(modifiableSimulationMotion);
       environment.copyPositionToVerifiedPosition();
     }
   }

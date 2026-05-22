@@ -122,8 +122,8 @@ public final class UnmodifiableSimulationEnvironmentView implements SimulationEn
 	}
 
 	@Override
-	public Motion baseMotion() {
-		return delegate.baseMotion();
+	public Motion mutableBaseMotionCopy() {
+		return delegate.mutableBaseMotionCopy();
 	}
 
 	@Override
@@ -159,11 +159,6 @@ public final class UnmodifiableSimulationEnvironmentView implements SimulationEn
 	@Override
 	public void setBaseMotionZ(double baseMotionZ) {
 		throw new UnsupportedOperationException("Cannot modify unmodifiable view");
-	}
-
-	@Override
-	public Motion motionProcessorContext() {
-		return delegate.motionProcessorContext();
 	}
 
 	@Override
@@ -448,6 +443,11 @@ public final class UnmodifiableSimulationEnvironmentView implements SimulationEn
 
 	@Override
 	public void resetPushedByWaterFlowTicks() {
+		throw new UnsupportedOperationException("Cannot modify unmodifiable view");
+	}
+
+	@Override
+	public void updateEyesInWater() {
 		throw new UnsupportedOperationException("Cannot modify unmodifiable view");
 	}
 

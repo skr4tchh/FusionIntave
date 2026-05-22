@@ -13,28 +13,20 @@ public abstract class Simulator {
     this.physics = physics;
   }
 
-  public abstract Simulation simulate(
+  public abstract void simulatePreInput(
+    User user, Motion motion,
+    SimulationEnvironment environment
+  );
+
+  public abstract Simulation simulatePrePosition(
     User user, Motion motion,
     SimulationEnvironment environment,
     MovementConfiguration configuration
   );
 
-  public void prepareNextTick(
+  public abstract void simulateAfterPosition(
     User user, SimulationEnvironment environment,
     Position position, Motion motion
-  ) {
-    prepareNextTick(
-      user, environment,
-      position.getX(), position.getY(), position.getZ(),
-      motion.motionX(), motion.motionY(), motion.motionZ()
-    );
-  }
-
-  public abstract void prepareNextTick(
-    User user,
-    SimulationEnvironment environment,
-    double positionX, double positionY, double positionZ,
-    double motionX, double motionY, double motionZ
   );
 
   public abstract void setback(

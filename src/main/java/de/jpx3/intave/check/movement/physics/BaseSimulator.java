@@ -3,17 +3,14 @@ package de.jpx3.intave.check.movement.physics;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
-import de.jpx3.intave.block.collision.modifier.PowderSnowCollisionModifier;
 import de.jpx3.intave.block.fluid.Fluids;
 import de.jpx3.intave.block.physics.BlockPhysics;
 import de.jpx3.intave.block.physics.BlockProperties;
-import de.jpx3.intave.block.type.MaterialSearch;
 import de.jpx3.intave.check.movement.physics.environment.SimulationEnvironment;
 import de.jpx3.intave.diagnostic.timings.Timings;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.tracker.entity.Entity;
-import de.jpx3.intave.module.tracker.player.PacketLogging;
 import de.jpx3.intave.player.Effects;
 import de.jpx3.intave.player.Enchantments;
 import de.jpx3.intave.player.collider.Colliders;
@@ -41,7 +38,79 @@ import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_14;
 
 class BaseSimulator extends Simulator {
   @Override
-  public Simulation simulate(
+  public void simulatePreInput(
+    User user, Motion motion,
+    SimulationEnvironment environment
+  ) {
+    handleSneakInWater(user, environment);
+    updateAquatics(user, environment);
+    simulateMotionClamp(user);
+  }
+
+  public void updateAquatics(User user, SimulationEnvironment environment) {
+    updateInWater(user);
+    updateInLava(user);
+    environment.updateEyesInWater();
+  }
+
+  private void handleSneakInWater(User user, SimulationEnvironment environment) {
+    ProtocolMetadata protocol = user.meta().protocol();
+    if (protocol.waterUpdate() && environment.isSneaking() && environment.inWater()) {
+      environment.setBaseMotionY(environment.baseMotionY() - 0.04F);
+    }
+  }
+
+  private void updateInWater(User user) {
+    MetadataBundle meta = user.meta();
+    ProtocolMetadata clientData = meta.protocol();
+    MovementMetadata movementData = meta.movement();
+    BoundingBox boundingBox = movementData.boundingBox();
+    if (!clientData.waterUpdate()) {
+      boundingBox = boundingBox.grow(0.0D, -0.4000000059604645D, 0.0D);
+    }
+    boundingBox = boundingBox.shrink(0.001D);
+    movementData.inWater = user.waterflow().applyFlowTo(user, boundingBox);
+    if (movementData.inWater) {
+      movementData.inWaterSinceFallDamagePostCheck = true;
+      movementData.pastWaterMovement = 0;
+      movementData.artificialFallDistance = 0;
+    }
+  }
+
+  private void updateInLava(User user) {
+    MovementMetadata movementData = user.meta().movement();
+    if (movementData.inLava()) {
+      movementData.pastLavaMovement = 0;
+    }
+  }
+
+  private void simulateMotionClamp(
+    User user
+  ) {
+    MovementMetadata movementData = user.meta().movement();
+    double resetMotion = movementData.resetMotion();
+
+    if (user.meta().protocol().newMotionClampLogic()) {
+      if (movementData.mutableBaseMotionCopy().horizontalLengthSqr() < 0.000009) {
+        movementData.baseMotionX = 0;
+        movementData.baseMotionZ = 0;
+      }
+    } else {
+      if (Math.abs(movementData.baseMotionX) < resetMotion) {
+        movementData.baseMotionX = 0.0;
+      }
+      if (Math.abs(movementData.baseMotionZ) < resetMotion) {
+        movementData.baseMotionZ = 0.0;
+      }
+    }
+
+    if (Math.abs(movementData.baseMotionY) < resetMotion) {
+      movementData.baseMotionY = 0.0;
+    }
+  }
+
+  @Override
+  public Simulation simulatePrePosition(
     User user,
     Motion motion,
     SimulationEnvironment environment,
@@ -384,25 +453,15 @@ class BaseSimulator extends Simulator {
     return Math.sqrt(distance) <= user.meta().protocol().flyingPacketUncertaintyRadius();
   }
 
-  private static final Material POWDER_SNOW = MaterialSearch.materialThatIsNamed("POWDER_SNOW");
-
   @Override
-  public void prepareNextTick(
+  public void simulateAfterPosition(
     User user,
     SimulationEnvironment environment,
-    double positionX,
-    double positionY,
-    double positionZ,
-    double motionX,
-    double motionY,
-    double motionZ
+    Position position, Motion motion
   ) {
     Player player = user.player();
     MetadataBundle meta = user.meta();
-    ViolationMetadata violationLevelData = meta.violationLevel();
     ProtocolMetadata clientData = meta.protocol();
-    Motion motion = environment.motionProcessorContext();
-    motion.setTo(motionX, motionY, motionZ);
     Pose pose = environment.pose();
 
     if (environment.motionMultiplier() != null) {
@@ -426,7 +485,7 @@ class BaseSimulator extends Simulator {
       slipperiness = 0.91f;
     }
 
-    BoundingBox boundingBox = BoundingBox.fromPosition(user, environment, positionX, positionY, positionZ);
+    BoundingBox boundingBox = BoundingBox.fromPosition(user, environment, position);
     environment.setBoundingBox(boundingBox);
 
     if (environment.inWeb()) {
@@ -452,7 +511,7 @@ class BaseSimulator extends Simulator {
       movementData.compileSpecialBlocks();
     }
 
-    updateFallStateAfter(user, motionY, environment.onGround());
+    updateFallStateAfter(user, motion.motionY, environment.onGround());
     simulateMovementOfCollidedBlocksAfter(user, environment, motion, boundingBox);
 
     if (inWater) {
@@ -471,47 +530,14 @@ class BaseSimulator extends Simulator {
       && MinecraftVersions.VER1_9_0.atOrAbove() /* todo: add scoreboard check */) {
       performGlobalEntityPush(user, environment, motion, boundingBox);
     }
-
-    if (!violationLevelData.isInActiveTeleportBundle) {
-      if (violationLevelData.doNotVerifyBaseMotion) {
-        violationLevelData.doNotVerifyBaseMotion = false;
-      } else {
-        PacketLogging logging = Modules.tracker().packetLogging();
-        logging.logSystemMessage(user, () -> "MOTION LOGIC: Base motion override: " + motion.motionX + " " + motion.motionY + " " + motion.motionZ);
-        environment.setBaseMotion(motion);
-      }
-    }
-
-    environment.increaseFlyingPacketTicks();
-    environment.increaseEntityUseTicks();
-    environment.increasePlayerAttackTicks();
-    environment.increasePushedByWaterFlowTicks();
-
-    if (environment.onGround()) {
-      environment.resetPhysicsPacketRelinkFlyVL();
-    }
-
-    Material type = VolatileBlockAccess.typeAccess(user, player.getWorld(), positionX, positionY, positionZ);
-    boolean climbingInPowderSnow = POWDER_SNOW != null && type == POWDER_SNOW && PowderSnowCollisionModifier.canWalkOnPowderSnow(player);
-    if (climbingInPowderSnow) {
-      environment.resetPowderSnowTicks();
-    } else {
-      environment.increasePowderSnowTicks();
-    }
-    environment.increaseEdgeSneakTickGrants();
   }
 
   private void updateFallStateAfter(User user, double motionY, boolean onGround) {
     MovementMetadata movementData = user.meta().movement();
     if (!movementData.inWater) {
-      physics().updateAquatics(user);
+      updateAquatics(user, movementData);
     }
     if (onGround) {
-//      if (movementData.artificialFallDistance > 3) {
-//        Synchronizer.synchronize(() -> {
-//          user.player().sendMessage(movementData.inWater() + "/" + Collision.rasterizedLiquidPresentSearch(user, movementData.boundingBox())+ " " + movementData.inLava() + " " + movementData.inWeb() + " " + movementData.onGround());
-//        });
-//      }
       physics().applyFallDamageUpdate(user);
       movementData.artificialFallDistance = 0;
     } else if (motionY < 0.0D) {
