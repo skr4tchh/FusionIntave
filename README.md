@@ -28,7 +28,7 @@ checks [here](https://docs.intave.ac/mechanics/checks-01-overview.html).
 
 ### Setup
 
-1. Clone the project: `git clone https://github.com/intave/intave.git`.
+1. Clone the project: `git clone https://github.com/skr4tchh/FusionIntave.git`.
 2. Open the project as Gradle project; wait a few minutes for IntelliJ to index and build the
    project.
 

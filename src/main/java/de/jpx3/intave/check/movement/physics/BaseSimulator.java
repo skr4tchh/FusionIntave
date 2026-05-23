@@ -37,6 +37,7 @@ import static de.jpx3.intave.share.ClientMath.floor;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_14;
 
 class BaseSimulator extends Simulator {
+
   @Override
   public void simulatePreTick(
     User user, Motion motion,
