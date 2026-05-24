@@ -2,6 +2,7 @@ package de.jpx3.intave.module.filter;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.wrappers.WrappedDataValue;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
@@ -14,19 +15,56 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Wither;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.ENTITY_METADATA;
 
-//@Deprecated
 public final class HealthFilter extends Filter {
+
   private final IntavePlugin plugin;
+
+  private final int HEALTH_METADATA_INDEX = 9;
 
   public HealthFilter(IntavePlugin plugin) {
     super("health");
     this.plugin = plugin;
   }
 
+  @PacketSubscription(
+    packetsOut = {
+      ENTITY_METADATA
+    },
+    priority = ListenerPriority.NORMAL
+  )
+  public void depriveHealth(PacketEvent event) {
+      PacketContainer packet = event.getPacket();
+      int entityId = packet.getIntegers().read(0);
+      if (event.getPlayer().getEntityId() != entityId) {
+          List<WrappedDataValue> dataValues = event.getPacket().getDataValueCollectionModifier().read(0);
+          List<WrappedDataValue> newDataValues = new ArrayList<>();
+
+          for (WrappedDataValue dataValue : dataValues) {
+              if (dataValue.getIndex() == HEALTH_METADATA_INDEX) {
+                  newDataValues.add(new WrappedDataValue(
+                          HEALTH_METADATA_INDEX,
+                          dataValue.getSerializer(),
+                          createFakeHealth()
+                  ));
+              } else {
+                  newDataValues.add(dataValue);
+              }
+          }
+
+          event.getPacket().getDataValueCollectionModifier().write(0, newDataValues);
+      }
+  }
+
+  private float createFakeHealth() {
+      return Math.max(1, (float) (Math.random() * 20.0F));
+  }
+
+  /*
   @PacketSubscription(
     packetsOut = {
       ENTITY_METADATA
@@ -75,4 +113,6 @@ public final class HealthFilter extends Filter {
   protected boolean enabled() {
     return !MinecraftVersions.VER1_19.atOrAbove() && super.enabled();
   }
+   */
+
 }

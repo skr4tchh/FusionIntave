@@ -19,6 +19,7 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Client.TAB_COMPLETE_I
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.TAB_COMPLETE_OUT;
 
 public final class CommandFilter extends Filter {
+
   private final boolean separateEnable;
   private final boolean disabled;
   private final Map<String, String> redirects = new HashMap<>();
@@ -114,4 +115,5 @@ public final class CommandFilter extends Filter {
   protected boolean enabled() {
     return (super.enabled() || separateEnable) && !disabled;
   }
+
 }

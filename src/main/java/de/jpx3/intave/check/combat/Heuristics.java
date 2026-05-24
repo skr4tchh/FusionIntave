@@ -11,7 +11,6 @@ import de.jpx3.intave.check.combat.heuristics.combatpatterns.accuracy.AccuracyLo
 import de.jpx3.intave.check.combat.heuristics.combatpatterns.rotation.*;
 import de.jpx3.intave.check.combat.heuristics.inventory.PacketInventoryHeuristic;
 import de.jpx3.intave.check.combat.heuristics.other.*;
-import de.jpx3.intave.check.combat.heuristics.testing.TestingHeuristic;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -27,9 +26,6 @@ public final class Heuristics extends Check {
   }
 
   private void setupClassicHeuristics() {
-    // for testing
-    appendCheckPart(new TestingHeuristic(this));
-
     appendCheckPart(new RotationStandardDeviationHeuristic(this));
     appendCheckPart(new RotationSnapHeuristic(this));
     appendCheckPart(new AccuracyLongTermHeuristic(this));

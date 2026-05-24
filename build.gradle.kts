@@ -29,7 +29,6 @@ repositories {
   maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") }
   maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
   maven { url = uri("https://oss.sonatype.org/content/repositories/central") }
-
 }
 
 dependencies {
@@ -70,7 +69,7 @@ dependencies {
  */
 bukkit {
   name = simpleName
-  authors = listOf("DarkAndBlue", "Jpx3", "vento", "vxcus", "lennoxlotl", "NotLucky", "Trattue")
+  authors = listOf("Skr4tch", "DarkAndBlue", "Jpx3", "vento", "vxcus", "lennoxlotl", "NotLucky", "Trattue")
   version = "${rootProject.version}"
   description = "${rootProject.description}"
 

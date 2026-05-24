@@ -289,8 +289,9 @@ fault-kicks:
 
 # Remove some data from packets used to slightly improve cheats
 filter:
-  equipmentdata: false
-  health: false
+  equipmentdata: true
+  potions: true
+  health: true
   # Disable vanish if you have problems with weird proxy kicks
   vanish: false
 
@@ -315,7 +316,7 @@ logging:
   #feedback-dump: false
 
 analytics:
-  errorReporting: true
+  errorReporting: false
   usageReporting: true
 
 layout:

@@ -9,8 +9,7 @@ public final class MultiActions extends Check {
         super("MultiActions", "multiactions");
 
         appendCheckParts(
-                new AttackEntity(this),
-                new BlockDig(this)
+                new AttackEntity(this)
         );
     }
 

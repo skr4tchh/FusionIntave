@@ -10,10 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class Filters extends Module {
+
   private final List<Filter> filters = new ArrayList<>();
 
   public void enable() {
     setup(EquipmentFilter.class);
+    setup(PotionsFilter.class);
     setup(HealthFilter.class);
     setup(VanishFilter.class);
     setup(CommandFilter.class);
