@@ -57,7 +57,8 @@ public final class EquipmentFilter extends Filter {
     }
 
     private ItemStack stripFromData(ItemStack itemStack) {
-      itemStack.setAmount(1);
+        if (itemStack.getAmount() > 1)
+            itemStack.setAmount(1);
 
         if (itemStack.hasItemMeta()) {
             ItemMeta meta = itemStack.getItemMeta();
@@ -67,9 +68,12 @@ public final class EquipmentFilter extends Filter {
                 }
                 itemStack.addUnsafeEnchantment(Enchantment.THORNS, 1);
             }
+            if (meta instanceof Damageable) {
+                itemStack.setDurability((short) 0);
+            }
         }
 
-      return itemStack;
+        return itemStack;
     }
 
   /*

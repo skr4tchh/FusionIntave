@@ -42,21 +42,22 @@ public final class HealthFilter extends Filter {
       int entityId = packet.getIntegers().read(0);
       if (event.getPlayer().getEntityId() != entityId) {
           List<WrappedDataValue> dataValues = event.getPacket().getDataValueCollectionModifier().read(0);
-          List<WrappedDataValue> newDataValues = new ArrayList<>();
+          boolean shouldPush = false;
 
-          for (WrappedDataValue dataValue : dataValues) {
-              if (dataValue.getIndex() == HEALTH_METADATA_INDEX) {
-                  newDataValues.add(new WrappedDataValue(
-                          HEALTH_METADATA_INDEX,
+          for (int i = 0; i < dataValues.size(); i++) {
+              WrappedDataValue dataValue = dataValues.get(i);
+              if (dataValue.getIndex() == HEALTH_METADATA_INDEX && dataValue.getRawValue() instanceof Float && (float) dataValue.getRawValue() != 0.0F) {
+                  dataValues.set(i, (new WrappedDataValue(
+                          dataValue.getIndex(),
                           dataValue.getSerializer(),
                           createFakeHealth()
-                  ));
-              } else {
-                  newDataValues.add(dataValue);
+                  )));
+                  shouldPush = true;
               }
           }
 
-          event.getPacket().getDataValueCollectionModifier().write(0, newDataValues);
+          if (shouldPush)
+              event.getPacket().getDataValueCollectionModifier().write(0, dataValues);
       }
   }
 
@@ -64,7 +65,7 @@ public final class HealthFilter extends Filter {
       return Math.max(1, (float) (Math.random() * 20.0F));
   }
 
-  /*
+    /*
   @PacketSubscription(
     packetsOut = {
       ENTITY_METADATA
@@ -72,8 +73,6 @@ public final class HealthFilter extends Filter {
     priority = ListenerPriority.NORMAL
   )
   public void depriveHealth(PacketEvent event) {
-    // Rule #3151235: When editing metadata, do a deepClone().
-    // Why? I still don't know after 5 hours of debugging.
     event.setPacket(event.getPacket().deepClone());
     PacketContainer packet = event.getPacket();
     EntityMetadataReader reader = PacketReaders.readerOf(packet);
@@ -87,7 +86,7 @@ public final class HealthFilter extends Filter {
       if (watchables != null) {
         for (int i = 0; i < watchables.size(); i++) {
           WrappedWatchableObject watchable = watchables.get(i);
-          if (watchable.getIndex() == 6 && watchable.getValue() instanceof Float) {
+          if (watchable.getIndex() == 9 && watchable.getValue() instanceof Float) {
             watchable = new WrappedWatchableObject(watchable.getIndex(), watchable.getRawValue());
             stripHealthFrom(watchable);
             watchables.set(i, watchable);
@@ -108,11 +107,6 @@ public final class HealthFilter extends Filter {
   private float createFakeHealth() {
     return Math.max(1, (float) (Math.random() * 20.0F));
   }
-
-  @Override
-  protected boolean enabled() {
-    return !MinecraftVersions.VER1_19.atOrAbove() && super.enabled();
-  }
-   */
+     */
 
 }

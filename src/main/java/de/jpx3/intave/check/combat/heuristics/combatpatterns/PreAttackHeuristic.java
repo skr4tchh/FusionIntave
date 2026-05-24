@@ -23,6 +23,7 @@ import static de.jpx3.intave.module.mitigate.AttackNerfStrategy.DMG_MEDIUM;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_8;
 
 public final class PreAttackHeuristic extends ClassicHeuristic<PreAttackHeuristic.PreAttackMeta> {
+
   private final IntavePlugin plugin;
 
   public PreAttackHeuristic(Heuristics parentCheck) {
