@@ -95,7 +95,7 @@ public final class Snap extends MetaCheckPart<PlacementAnalysis, Snap.SnapMeta> 
 //    }
 
     if (meta.yawMotion(1) > 30 && meta.pitchMotion(1) > 30) {
-      if (Math.abs(meta.yawMotion(1) - meta.yawMotion(2)) < 5 && Math.abs(meta.yawMotion(1) - meta.yawMotion(2)) < 5) {
+      if (Math.abs(meta.yawMotion(1) - meta.yawMotion(2)) < 5 && Math.abs(meta.pitchMotion(1) - meta.pitchMotion(2)) < 5) {
         if (absYawDiff(meta.yawAt(1), meta.yawAt(3)) < 3 && absPitchDiff(meta.pitchAt(1), meta.pitchAt(3)) < 3) {
           Violation violation = Violation.builderFor(PlacementAnalysis.class)
             .forPlayer(player)
