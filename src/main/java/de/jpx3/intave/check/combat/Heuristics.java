@@ -26,14 +26,15 @@ public final class Heuristics extends Check {
   }
 
   private void setupClassicHeuristics() {
-    appendCheckPart(new RotationStandardDeviationHeuristic(this));
-    appendCheckPart(new RotationSnapHeuristic(this));
-    appendCheckPart(new AccuracyLongTermHeuristic(this));
-    appendCheckPart(new RotationAccuracyYawHeuristic(this));
-    appendCheckPart(new RotationExactHeuristic(this));
-    appendCheckPart(new AccuracyHitboxCornerHeuristic(this));
-    appendCheckPart(new RotationSensitivityHeuristic(this));
-    appendCheckPart(new RotationModuloResetHeuristic(this));
+    // Heuristic checks have been disabled due to the transition to MX until cloud checks are available.
+    //appendCheckPart(new RotationStandardDeviationHeuristic(this));
+    //appendCheckPart(new RotationSnapHeuristic(this));
+    //appendCheckPart(new AccuracyLongTermHeuristic(this));
+    //appendCheckPart(new RotationAccuracyYawHeuristic(this));
+    //appendCheckPart(new RotationExactHeuristic(this));
+    //appendCheckPart(new AccuracyHitboxCornerHeuristic(this));
+    //appendCheckPart(new RotationSensitivityHeuristic(this));
+    //appendCheckPart(new RotationModuloResetHeuristic(this));
     appendCheckPart(new PreAttackHeuristic(this));
 
     appendCheckPart(new AttackRequiredHeuristic(this));
@@ -43,6 +44,8 @@ public final class Heuristics extends Check {
     appendCheckPart(new PacketPlayerActionToggleHeuristic(this));
     appendCheckPart(new PacketInventoryHeuristic(this));
     appendCheckPart(new BlockingHeuristic(this));
+
+    // Old Versions
     appendCheckPart(new NoSwingHeuristic(this));
     appendCheckPart(new CivbreakHeuristic(this));
   }
