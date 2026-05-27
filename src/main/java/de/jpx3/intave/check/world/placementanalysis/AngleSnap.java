@@ -43,8 +43,8 @@ public class AngleSnap extends PlayerCheckPart<PlacementAnalysis> {
       // 5th not included
       float rotationSum = 0;
       int maxHistory = Math.min(5, rotationHistory.size());
-      for (int i = 0; i < rotationHistory.size() - 1; i++) {
-        if (i > maxHistory) {
+      for (int i = rotationHistory.size() - 2; i >= 0; i--) {
+        if (rotationHistory.size() - 1 - i > maxHistory) {
           break;
         }
         rotationSum += Math.abs(rotationHistory.get(i) - rotationHistory.get(i + 1));

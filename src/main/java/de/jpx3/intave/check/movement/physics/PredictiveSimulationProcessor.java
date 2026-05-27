@@ -20,12 +20,10 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
    * please refactor
    * */
   private final boolean itemUsageReset;
-  private final boolean useSuperpositions;
   private final boolean detectNoSlowdown;
 
-  public PredictiveSimulationProcessor(boolean itemUsageReset, boolean useSuperpositions, boolean detectNoSlowdown) {
+  public PredictiveSimulationProcessor(boolean itemUsageReset, boolean detectNoSlowdown) {
     this.itemUsageReset = itemUsageReset;
-    this.useSuperpositions = useSuperpositions;
     this.detectNoSlowdown = detectNoSlowdown;
   }
 
@@ -146,7 +144,6 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     movementData.keyForward = simulationStack.forward();
     movementData.keyStrafe = simulationStack.strafe();
     movementData.physicsJumped = simulationStack.jumped();
-//    movementData.sprintMove = simulationStack.sprinted();
   }
 
   private static final double REQUIRED_PREDICTION_ACCURACY_FOR_PRED_BIAS_PROCEED = 0.1;
@@ -244,21 +241,6 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     return -1;
   }
 
-  private double directionPredictionError(double differenceX, double differenceZ, float yaw) {
-    if (Hypot.fast(differenceX, differenceZ) > 0.001) {
-      double direction;
-      direction = Math.toDegrees(Math.atan2(differenceZ, differenceX)) - 90d;
-      direction -= yaw;
-      direction %= 360d;
-      if (direction < 0)
-        direction += 360;
-      direction = Math.abs(direction);
-      direction /= 45d;
-      return Math.abs(direction - (int) Math.round(direction));
-    }
-    return 0;
-  }
-
   private static final int[] forwardKeys = {1, 1, 0, -1, -1, -1, 0, 1, 1};
   private static final int[] strafeKeys = {0, -1, -1, -1, 0, 1, 1, 1, 0};
 
@@ -313,18 +295,13 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     if (sprinting && keyForward != 1) {
       configuration = configuration.withoutKeypress();
     } else if (sprinting) {
-      if (movementData.isSneaking() && !configuration.isJumping()) {
-        configuration = configuration.withoutSprinting();
-      } else {
-        configuration = configuration.withSprinting();
-      }
+      configuration = configuration.withSprinting();
     }
     // block inventory move
     if (inventoryData.inventoryOpen()) {
       configuration = configuration.withoutKeypress();
     }
     movementData.physicsJumped = configuration.isJumping();
-//    movementData.sprintMove = configuration.isSprinting();
     movementData.keyForward = configuration.forward();
     movementData.keyStrafe = configuration.strafe();
     movementData.refreshFriction(sprinting);

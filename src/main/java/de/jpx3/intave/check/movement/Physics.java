@@ -81,15 +81,10 @@ public final class Physics extends Check {
   private static final long BURST_WINDOW = 8000;
   private static final long BURST_CONGESTION = 2;
 
-  public static boolean USE_SUPERPOSITIONS = true;
-
   private final IntavePlugin plugin;
   private final CheckViolationLevelDecrementer decrementer;
   private final SimulationProcessor simulationProcessor;
   private final SimulationEvaluator simulationEvaluator;
-  private final FallDamageApplier fallDamageApplier;
-  private final boolean useSuperpositions;
-  private final boolean detectNoSlowdown;
   private final boolean highToleranceMode;
   private final boolean resetItemUsage;
   private final boolean closeInventory;
@@ -127,14 +122,10 @@ public final class Physics extends Check {
       this.refreshNearbyBlocks = settings.boolBy("refresh-nearby-blocks-on-detection", true);
     }
 
-    this.useSuperpositions = !settings.boolBy("no-speculative-velocity", true);
-    this.detectNoSlowdown = settings.boolBy("enforce-item-slowdown", true);
-    Physics.USE_SUPERPOSITIONS = useSuperpositions;
-
-    this.simulationProcessor = new PredictiveSimulationProcessor(resetItemUsage, useSuperpositions, detectNoSlowdown);
+    boolean detectNoSlowdown = settings.boolBy("enforce-item-slowdown", true);
+    this.simulationProcessor = new PredictiveSimulationProcessor(resetItemUsage, detectNoSlowdown);
     this.simulationEvaluator = new SimulationEvaluator();
     setDefaultMitigationStrategy(MitigationStrategy.CAREFUL);
-    this.fallDamageApplier = new FallDamageApplier();
   }
 
   @DispatchTarget

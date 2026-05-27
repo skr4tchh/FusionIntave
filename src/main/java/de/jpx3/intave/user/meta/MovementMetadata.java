@@ -87,8 +87,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public String verifiedPositionOrigin;
   public double lastPositionX, lastPositionY, lastPositionZ;
   public double positionX, positionY, positionZ;
-  public boolean sprinting, lastSprinting, /*sprintMove, lastSprintMove,*/
-    hasSprintSpeed, sneaking, lastSneaking;
+  public boolean sprinting, lastSprinting, hasSprintSpeed, sneaking, lastSneaking;
   public int sprintSneakFaults;
   public boolean acceptSneakFaults = true;
   public int ticksSneaking, ticksSprinting;
@@ -876,10 +875,8 @@ public final class MovementMetadata implements SimulationEnvironment {
     if (sneaking && !clientData.sprintWhenSneaking()) {
       sprintingAllowed = false;
     }
-    if (inventoryData.inventoryOpen()) {
-      sprintingAllowed = false;
-    }
-    if (abilities.foodLevel <= 6) {
+    boolean preventWaterSprint = clientData.waterUpdate() && inWater && !isSwimming(user);
+    if (inventoryData.inventoryOpen() || abilities.foodLevel <= 6 || preventWaterSprint) {
       sprintingAllowed = false;
     }
   }

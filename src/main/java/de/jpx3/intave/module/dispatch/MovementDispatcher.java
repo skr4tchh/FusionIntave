@@ -861,7 +861,7 @@ public final class MovementDispatcher extends Module {
     abilityData.ticksToLastHealthUpdate++;
     movement.physicsUnpredictableVelocityExpected = false;
     movement.step = false;
-    movement.lastSprinting = movement.sprintingAllowed();
+    movement.lastSprinting = movement.sprinting;
     movement.lastSneaking = movement.sneaking;
     movement.fireworkRocketsTicks++;
     movement.attachVehicleTicks++;
