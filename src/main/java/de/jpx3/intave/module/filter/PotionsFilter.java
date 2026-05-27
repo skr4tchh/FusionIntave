@@ -2,6 +2,7 @@ package de.jpx3.intave.module.filter;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 
@@ -9,7 +10,7 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Server.ENTITY_EFFECT;
 
 public class PotionsFilter extends Filter {
 
-    public PotionsFilter() {
+    public PotionsFilter(IntavePlugin plugin) {
         super("potions");
     }
 

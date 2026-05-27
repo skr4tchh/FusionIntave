@@ -22,6 +22,7 @@ import java.util.function.UnaryOperator;
 import static org.bukkit.event.entity.EntityDamageEvent.DamageModifier.BASE;
 
 public final class DamageModify {
+
   public static double attackDamageOf(Player player) {
     if (MinecraftVersions.VER1_9_0.atOrAbove()) {
       return (float) player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getValue();

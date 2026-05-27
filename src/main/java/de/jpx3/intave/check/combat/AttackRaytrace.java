@@ -61,6 +61,7 @@ import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DISPLAY_I
 import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DONT_PROCESS_VIOSTAT;
 
 public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytraceMeta> {
+
   private static final char[] VOCALS = "aeiou".toCharArray();
   private final IntavePlugin plugin;
   private final CheckViolationLevelDecrementer hitboxDecrementer, reachDecrementer, timeoutDecrementer;

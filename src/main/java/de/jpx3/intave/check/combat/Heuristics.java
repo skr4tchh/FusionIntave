@@ -26,15 +26,14 @@ public final class Heuristics extends Check {
   }
 
   private void setupClassicHeuristics() {
-    // Heuristic checks have been disabled due to the transition to MX until cloud checks are available.
-    //appendCheckPart(new RotationStandardDeviationHeuristic(this));
-    //appendCheckPart(new RotationSnapHeuristic(this));
-    //appendCheckPart(new AccuracyLongTermHeuristic(this));
-    //appendCheckPart(new RotationAccuracyYawHeuristic(this));
-    //appendCheckPart(new RotationExactHeuristic(this));
-    //appendCheckPart(new AccuracyHitboxCornerHeuristic(this));
-    //appendCheckPart(new RotationSensitivityHeuristic(this));
-    //appendCheckPart(new RotationModuloResetHeuristic(this));
+    appendCheckPart(new RotationStandardDeviationHeuristic(this));
+    appendCheckPart(new RotationSnapHeuristic(this));
+    appendCheckPart(new AccuracyLongTermHeuristic(this));
+    appendCheckPart(new RotationAccuracyYawHeuristic(this));
+    appendCheckPart(new RotationExactHeuristic(this));
+    appendCheckPart(new AccuracyHitboxCornerHeuristic(this));
+    appendCheckPart(new RotationSensitivityHeuristic(this));
+    appendCheckPart(new RotationModuloResetHeuristic(this));
     appendCheckPart(new PreAttackHeuristic(this));
 
     appendCheckPart(new AttackRequiredHeuristic(this));

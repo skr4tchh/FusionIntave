@@ -19,11 +19,8 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Server.ENTITY_METADAT
 
 public final class HealthFilter extends Filter {
 
-    private final IntavePlugin plugin;
-
     public HealthFilter(IntavePlugin plugin) {
         super("health");
-        this.plugin = plugin;
     }
 
     @PacketSubscription(
