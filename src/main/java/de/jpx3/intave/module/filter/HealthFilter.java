@@ -33,7 +33,7 @@ public final class HealthFilter extends Filter {
         PacketContainer packet = event.getPacket();
         EntityMetadataReader reader = PacketReaders.readerOf(packet);
         Entity entity = reader.entityBy(event);
-        if (entity == null || !entity.getType().isAlive() || entity instanceof EnderDragon || entity instanceof Wither || event.getPlayer().getEntityId() == entity.getEntityId()) {
+        if (entity == null || !entity.getType().isAlive() || entity instanceof EnderDragon || entity instanceof Wither || event.getPlayer().getEntityId() == reader.entityId()) {
             reader.release();
             return;
         }

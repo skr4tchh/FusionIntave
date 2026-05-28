@@ -49,7 +49,7 @@ public final class EquipmentFilter extends Filter {
 
             for (Pair<EnumWrappers.ItemSlot, ItemStack> pair : slotStackPairs) {
                 ItemStack itemStack = pair.getSecond();
-                itemStack = stripFromData(itemStack);
+                itemStack = stripFromData(itemStack.clone());
                 modifiedPairs.add(new Pair<>(pair.getFirst(), itemStack));
             }
 
