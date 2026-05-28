@@ -33,25 +33,23 @@ public final class HealthFilter extends Filter {
         PacketContainer packet = event.getPacket();
         EntityMetadataReader reader = PacketReaders.readerOf(packet);
         Entity entity = reader.entityBy(event);
-        if (entity == null || entity instanceof EnderDragon || entity instanceof Wither) {
+        if (entity == null || !entity.getType().isAlive() || entity instanceof EnderDragon || entity instanceof Wither || entity.getEntityId() == event.getPlayer().getEntityId()) {
             reader.release();
             return;
         }
 
         List<WrappedDataValue> dataValues = event.getPacket().getDataValueCollectionModifier().read(0);
-        if (entity instanceof LivingEntity && entity.getEntityId() != event.getPlayer().getEntityId()) {
-            for (int i = 0; i < dataValues.size(); i++) {
-                WrappedDataValue dataValue = dataValues.get(i);
-                if (dataValue.getIndex() == 9
-                        && dataValue.getValue() instanceof Float
-                        && dataValue.getRawValue() instanceof Float
-                        && (float) dataValue.getRawValue() != 0.0F) {
-                    dataValues.set(i, (new WrappedDataValue(
-                            dataValue.getIndex(),
-                            dataValue.getSerializer(),
-                            createFakeHealth()
-                    )));
-                }
+        List<WrappedDataValue> modifiedDataValues = new ArrayList<>();
+
+        for (WrappedDataValue dataValue : dataValues) {
+            if (dataValue.getIndex() == 9) {
+                modifiedDataValues.add(new WrappedDataValue(
+                        dataValue.getIndex(),
+                        dataValue.getSerializer(),
+                        createFakeHealth()
+                ));
+            } else {
+                modifiedDataValues.add(dataValue);
             }
         }
 
