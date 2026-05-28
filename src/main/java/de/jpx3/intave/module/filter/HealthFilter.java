@@ -38,22 +38,22 @@ public final class HealthFilter extends Filter {
             return;
         }
 
-        List<WrappedDataValue> dataValues = event.getPacket().getDataValueCollectionModifier().read(0);
-        List<WrappedDataValue> modifiedDataValues = new ArrayList<>();
+        PacketContainer clonedPacket = packet.deepClone();
+        List<WrappedDataValue> clonedDataValues = clonedPacket.getDataValueCollectionModifier().read(0);
 
-        for (WrappedDataValue dataValue : dataValues) {
+        for (int i = 0; i < clonedDataValues.size(); i++) {
+            WrappedDataValue dataValue = clonedDataValues.get(i);
             if (dataValue.getIndex() == 9) {
-                modifiedDataValues.add(new WrappedDataValue(
+                clonedDataValues.set(i, new WrappedDataValue(
                         dataValue.getIndex(),
                         dataValue.getSerializer(),
                         createFakeHealth()
                 ));
-            } else {
-                modifiedDataValues.add(dataValue);
             }
         }
 
-        event.getPacket().getDataValueCollectionModifier().write(0, modifiedDataValues);
+        clonedPacket.getDataValueCollectionModifier().write(0, clonedDataValues);
+        event.setPacket(clonedPacket);
         reader.release();
     }
 
