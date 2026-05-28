@@ -53,7 +53,7 @@ public final class EquipmentFilter extends Filter {
                 modifiedPairs.add(new Pair<>(pair.getFirst(), itemStack));
             }
 
-            event.getPacket().getSlotStackPairLists().write(0, modifiedPairs);
+            packet.getSlotStackPairLists().write(0, modifiedPairs);
         }
     }
 
