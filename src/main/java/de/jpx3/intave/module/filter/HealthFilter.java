@@ -53,7 +53,7 @@ public final class HealthFilter extends Filter {
             }
         }
 
-        event.getPacket().getDataValueCollectionModifier().write(0, dataValues);
+        event.getPacket().getDataValueCollectionModifier().write(0, modifiedDataValues);
         reader.release();
     }
 
