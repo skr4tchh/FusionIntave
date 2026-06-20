@@ -320,7 +320,6 @@ public final class ViolationProcessor extends Module {
     Synchronizer.synchronize(() -> {
       boolean playerRemoved = command.startsWith("ban") || command.startsWith("kick");
       if (playerRemoved) {
-        Modules.mitigate().reconnectionLimiter().ban(player.getAddress().getAddress(), player.getUniqueId(), checkName);
         plugin.proxy().sendPacket(player, new IntavePacketOutKicked(
           player.getUniqueId(),
           checkName,

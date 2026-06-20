@@ -1,5 +1,5 @@
 
-![Intave](docs/assets/hero_banner.png "FusionIntave")
+![Intave](docs/assets/hero_banner.png "Intave")
 
 FusionIntave is a fork of the Intave anti-cheat, containing many additions/checks.
 

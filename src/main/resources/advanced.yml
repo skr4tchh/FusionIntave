@@ -22,7 +22,7 @@ check:
     # Mitigation mode
     #   Choose between AGGRESSIVE, CAREFUL, LENIENT, BARELY and SILENT
     #   FALSE POSITIVES -> REPORT THEM
-    mitigation: BARELY
+    mitigation: AGGRESSIVE
 
     # Check for NoSlowdown cheats?
     enforce-item-slowdown: true
@@ -93,7 +93,6 @@ check:
       no-swing: 0
       swing-order: 3
       sprint-toggles: 2 # prevents spamming sprint packets to apply more knockback on targets
-      tool-switch: 3 # prevents slot switches while breaking blocks
 
       thresholds:
         20:
@@ -234,7 +233,7 @@ storage:
   recover-vl: true
 
 blacklist:
-  apply: true
+  apply: false
   message-in-chat: false
   message: "&cYou are on an anti-cheat blacklist and can't join this server"
 
@@ -258,7 +257,7 @@ compatibility:
   no-transaction-obfuscation: false
 
 command:
-  hide: true
+  hide: false
   reroute:
     "/alerts": "/intave verbose"
     "/cps": "/intave cps"
@@ -266,12 +265,6 @@ command:
   # Apply a fix that disables command hide and reroute features,
   # but fixes a 1.12 bug that kicks players when they tab a command
   fix-tab-kicks: false
-
-rejoin:
-  # DO NOT DISABLE IN PRODUCTION
-  delay: 3600
-  refresh: true
-  message: "&cYou were removed recently, wait before connecting again"
 
 # You should disable any of these options **ONLY**
 # when experiencing serious problems and **ONLY** after reporting the issue to us.
@@ -288,7 +281,8 @@ fault-kicks:
 
 # Remove some data from packets used to slightly improve cheats
 filter:
-  equipmentdata: false
+  equipmentdata: true
+  potions: true
   health: true
   # Disable vanish if you have problems with weird proxy kicks
   vanish: true
