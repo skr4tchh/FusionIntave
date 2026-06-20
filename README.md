@@ -1,15 +1,11 @@
 
-![Intave](docs/assets/hero_banner.png "Intave")
+![Intave](docs/assets/hero_banner.png "FusionIntave")
 
+FusionIntave is a fork of the Intave anti-cheat, containing many additions/checks.
 
 Intave is an enterprise anticheat plugin for Minecraft servers in development since 2016.
 After almost a decade of use on the world's largest Minecraft servers
 and shutting down in mid-2025, we now decided to give back to the community by making Intave source-available to everyone.
-
-## Downloads
-- [Auto Loader](https://github.com/intave/loader/releases/download/v1.0.0/IntaveLoader.jar) (Recommended)
-- [Nightly Build](https://github.com/intave/intave/releases/download/nightly/Intave.jar)
-- [Modrinth](https://modrinth.com/plugin/intave)
 
 ## General
 
@@ -21,14 +17,11 @@ Additionally, Intave provides heuristic checks to counter aimbot, auto-clicker, 
 inventory
 and many other cheats that cannot be detected by solely simulating client logic.
 
-For more information, see the documentation of Intave's
-checks [here](https://docs.intave.ac/mechanics/checks-01-overview.html).
-
 ## Development
 
 ### Setup
 
-1. Clone the project: `git clone https://github.com/intave/intave.git`.
+1. Clone the project: `git clone https://github.com/skr4tchh/FusionIntave.git`.
 2. Open the project as Gradle project; wait a few minutes for IntelliJ to index and build the
    project.
 
