@@ -81,7 +81,7 @@ public final class ProtocolMetadata {
       minecraftVersion = MinecraftVersions.VER1_19_1;
     } else {
       minecraftVersion = new MinecraftVersion(versionString);
-      MinecraftVersion server = MinecraftVersion.getCurrentVersion();
+      MinecraftVersion server = MinecraftVersion.current();
       MinecraftVersion client = new MinecraftVersion(versionString);
       behind = !client.isAtLeast(server);
     }
@@ -160,7 +160,7 @@ public final class ProtocolMetadata {
     return protocolVersion < VER_1_14;
   }
 
-  public boolean sprintWhenSneaking() {
+  public boolean canSprintWhileSneaking() {
     return protocolVersion >= VER_1_14;
   }
 
@@ -256,6 +256,10 @@ public final class ProtocolMetadata {
     return protocolVersion >= VER_1_20_2 && MinecraftVersions.VER1_20_2.atOrAbove();
   }
 
+  public boolean sendsInputs() {
+    return protocolVersion >= VER_1_21_3;
+  }
+
   public void setLocale(String locale) {
     this.locale = locale;
   }
@@ -268,7 +272,7 @@ public final class ProtocolMetadata {
 
   public boolean outdatedClient() {
     if (behind == null || refreshes < 2) {
-      MinecraftVersion server = MinecraftVersion.getCurrentVersion();
+      MinecraftVersion server = MinecraftVersion.current();
       MinecraftVersion client;
       try {
         client = new MinecraftVersion(versionAsString(protocolVersion));

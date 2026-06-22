@@ -26,7 +26,7 @@ abstract class BlockShapePatch {
     if (input.equals(output)) {
       return shape;
     } else {
-      return BlockShapes.mergeBoxes(output);
+      return BlockShapes.optimizedMerge(output);
     }
   }
 
@@ -45,7 +45,7 @@ abstract class BlockShapePatch {
     if (input.equals(output)) {
       return shape;
     } else {
-      return BlockShapes.mergeBoxes(output);
+      return BlockShapes.optimizedMerge(output);
     }
   }
 

@@ -534,6 +534,11 @@ public final class TestSimulationEnvironment implements SimulationEnvironment {
   }
 
   @Override
+  public void resetPhysicsPacketRelinkFlyVL() {
+
+  }
+
+  @Override
   public int ticks(MoveMetric metric) {
     return activeTracker.getOrDefault(metric, 0);
   }
@@ -585,6 +590,11 @@ public final class TestSimulationEnvironment implements SimulationEnvironment {
 
   @Override
   public void assumeOccurred(Simulation simulation) {
+
+  }
+
+  @Override
+  public void tickComplete(boolean hasMovement, boolean hasRotation) {
 
   }
 

@@ -414,6 +414,11 @@ public final class UnmodifiableSimulationEnvironmentView implements SimulationEn
 	}
 
 	@Override
+	public void resetPhysicsPacketRelinkFlyVL() {
+		throw new UnsupportedOperationException("Cannot modify unmodifiable view");
+	}
+
+	@Override
 	public void updateEyesInWater() {
 		throw new UnsupportedOperationException("Cannot modify unmodifiable view");
 	}
@@ -455,6 +460,11 @@ public final class UnmodifiableSimulationEnvironmentView implements SimulationEn
 
 	@Override
 	public void assumeOccurred(Simulation simulation) {
+		throw new UnsupportedOperationException("Cannot modify unmodifiable view");
+	}
+
+	@Override
+	public void tickComplete(boolean hasMovement, boolean hasRotation) {
 		throw new UnsupportedOperationException("Cannot modify unmodifiable view");
 	}
 

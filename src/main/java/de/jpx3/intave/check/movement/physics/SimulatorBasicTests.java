@@ -67,7 +67,7 @@ public final class SimulatorBasicTests extends IntegrationTests {
 
     MockFullBlockStaticPlane plane = new MockFullBlockStaticPlane();
     plane.horizontalFill(1);
-    testUser = UserFactory.createTestUserFor(player, s -> {
+    testUser = UserFactory.createTestUserFor(player, (usr, s) -> {
       switch (s) {
         case "collider":
           return collider;

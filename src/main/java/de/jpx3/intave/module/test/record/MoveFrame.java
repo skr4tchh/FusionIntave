@@ -4,6 +4,7 @@ import de.jpx3.intave.annotate.Nullable;
 import de.jpx3.intave.codec.ByteBufStreamCodecs;
 import de.jpx3.intave.codec.StreamCodec;
 import de.jpx3.intave.share.BlockPosition;
+import de.jpx3.intave.share.Input;
 import de.jpx3.intave.share.Position;
 import de.jpx3.intave.share.Rotation;
 import io.netty.buffer.ByteBuf;
@@ -17,14 +18,13 @@ final class MoveFrame {
 	private final Map<BlockPosition, MaterialVariantStore> dirtyBlocks = new HashMap<>();
 	private final Position moveTo;
 	private final Rotation rotateTo;
+	private final Input input;
 
 	public static final StreamCodec<ByteBuf, ByteBuf, MoveFrame> STREAM_CODEC = StreamCodec.compound(
-		Position.STREAM_CODEC.nullable(ByteBufStreamCodecs.BOOLEAN),
-		MoveFrame::moveTo,
-		Rotation.STREAM_CODEC.nullable(ByteBufStreamCodecs.BOOLEAN),
-		MoveFrame::rotateTo,
-		StreamCodec.mapCodec(BlockPosition.STREAM_CODEC, MaterialVariantStore.STREAM_CODEC, ByteBufStreamCodecs.INTEGER),
-		MoveFrame::blocks,
+		Position.STREAM_CODEC.nullable(ByteBufStreamCodecs.BOOLEAN), MoveFrame::moveTo,
+		Rotation.STREAM_CODEC.nullable(ByteBufStreamCodecs.BOOLEAN), MoveFrame::rotateTo,
+		StreamCodec.mapCodec(BlockPosition.STREAM_CODEC, MaterialVariantStore.STREAM_CODEC, ByteBufStreamCodecs.INTEGER), MoveFrame::blocks,
+		Input.STREAM_CODEC, MoveFrame::input,
 		MoveFrame::new
 	);
 
@@ -34,11 +34,13 @@ final class MoveFrame {
 
 	public MoveFrame(
 		@Nullable Position moveTo, @Nullable Rotation rotateTo,
-		Map<BlockPosition, MaterialVariantStore> dirtyBlocks
-		) {
+		Map<BlockPosition, MaterialVariantStore> dirtyBlocks,
+		Input input
+	) {
 		this.moveTo = moveTo;
 		this.rotateTo = rotateTo;
 		this.dirtyBlocks.putAll(dirtyBlocks);
+		this.input = input;
 	}
 
 	public Map<BlockPosition, MaterialVariantStore> blocks() {
@@ -53,6 +55,9 @@ final class MoveFrame {
 		return rotateTo;
 	}
 
+	public Input input() {
+		return input;
+	}
 
 	@Override
 	public String toString() {

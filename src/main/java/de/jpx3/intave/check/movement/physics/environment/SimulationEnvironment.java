@@ -158,8 +158,33 @@ public interface SimulationEnvironment {
 
   int ticks(MoveMetric metric);
   int ticksPast(MoveMetric metric);
+
+  default void tick(MoveMetric metric, boolean active) {
+    if (active) {
+      activeTick(metric);
+    } else {
+      inactiveTick(metric);
+    }
+  }
+
   void activeTick(MoveMetric metric);
   void inactiveTick(MoveMetric metric);
+
+  default void activeTick(MoveMetric first, MoveMetric... others) {
+    activeTick(first);
+    for (MoveMetric other : others) {
+      activeTick(other);
+    }
+  }
+
+  default void inactiveTick(MoveMetric first, MoveMetric... others) {
+    inactiveTick(first);
+    for (MoveMetric other : others) {
+      inactiveTick(other);
+    }
+  }
+
+  void resetPhysicsPacketRelinkFlyVL();
 
   void updateEyesInWater();
   void aquaticUpdateLavaReset();
@@ -173,6 +198,7 @@ public interface SimulationEnvironment {
   Fluid interactingFluid();
 
   void assumeOccurred(Simulation simulation);
+  void tickComplete(boolean hasMovement, boolean hasRotation);
 
   default SimulationEnvironment unmodifiable() {
     return UnmodifiableSimulationEnvironmentView.of(this);

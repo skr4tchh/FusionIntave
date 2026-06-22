@@ -26,6 +26,7 @@ public final class BlockTypeAccess {
   public static final Material END_PORTAL_FRAME = resolveFrom("END_PORTAL_FRAME", "ENDER_PORTAL_FRAME");
   public static final Material SKULL = resolveFrom("SKULL", "LEGACY_SKULL");
   public static final Material COBBLESTONE_WALL = resolveFrom("COBBLESTONE_WALL", "COBBLE_WALL");
+  public static final Material POWDER_SNOW = MaterialSearch.materialThatIsNamed("POWDER_SNOW");
 
   public static void setup() {
   }
@@ -49,7 +50,7 @@ public final class BlockTypeAccess {
   private static final TypeTranslations TYPE_TRANSLATIONS = MAPPING_RESOURCE.collectLines(VerTraFileTypeTranslator.lineCollector());
 
   public static void setupTranslationsFor(User user) {
-    MinecraftVersion serverVersion = MinecraftVersion.getCurrentVersion();
+    MinecraftVersion serverVersion = MinecraftVersion.current();
     MinecraftVersion clientVersion = user.meta().protocol().minecraftVersion();
     user.clearTypeTranslations();
     TYPE_TRANSLATIONS.specifiedTo(serverVersion, clientVersion).forEachType(user::applyTypeTranslation);

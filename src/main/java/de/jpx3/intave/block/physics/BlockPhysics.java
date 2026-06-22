@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class BlockPhysics {
-  private static final MinecraftVersion MINECRAFT_VERSION = MinecraftVersion.getCurrentVersion();
+  private static final MinecraftVersion MINECRAFT_VERSION = MinecraftVersion.current();
   private static final Map<Material, BlockPhysic> materialLookup = new HashMap<>();
 
   public static void setup() {

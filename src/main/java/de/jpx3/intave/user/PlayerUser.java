@@ -445,10 +445,9 @@ final class PlayerUser implements User {
   public HitboxSize sizeOf(Pose pose) {
     HitboxSize size = poseSizes.get(pose);
     double scale = meta().abilities().attributeValue("generic.scale");
-    if (Double.isNaN(scale)) {
-      return size;
+    if (!Double.isNaN(scale)) {
+      size = size.scaled(scale);
     }
-    size = size.scaled(scale);
     return size;
   }
 
@@ -547,6 +546,16 @@ final class PlayerUser implements User {
   @Override
   public void message(String key, Object... args) {
 
+  }
+
+  @Override
+  public void sendMessage(String message) {
+    Synchronizer.synchronize(() -> {
+      Player player = player();
+      if (player.isOnline()) {
+        player.sendMessage(message);
+      }
+    });
   }
 
   @Override

@@ -1,6 +1,7 @@
 package de.jpx3.intave.module.test;
 
 import com.comphenix.protocol.events.PacketEvent;
+import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.Nullable;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.linker.packet.PacketId;
@@ -10,12 +11,11 @@ import de.jpx3.intave.module.test.record.TickRange;
 import de.jpx3.intave.module.test.record.action.ReceiveVelocity;
 import de.jpx3.intave.packet.reader.EntityVelocityReader;
 import de.jpx3.intave.packet.reader.PlayerMoveReader;
-import de.jpx3.intave.share.BoundingBox;
-import de.jpx3.intave.share.Motion;
-import de.jpx3.intave.share.Position;
-import de.jpx3.intave.share.Rotation;
+import de.jpx3.intave.player.ActionBar;
+import de.jpx3.intave.share.*;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserLocal;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.bukkit.entity.Player;
@@ -33,7 +33,7 @@ import static java.nio.file.StandardOpenOption.CREATE;
 
 public final class PhysicsTestRecorder extends Module {
 	private final UserLocal<AtomicBoolean> recording = UserLocal.withInitial(new AtomicBoolean(false));
-	private final UserLocal<MovementRecording> recordingData = UserLocal.withInitial(MovementRecording::create);
+	private final UserLocal<MovementRecording> recordingData = UserLocal.withInitial(MovementRecording::createFor);
 
 	@PacketSubscription(
 		packetsIn = {FLYING, LOOK, POSITION, POSITION_LOOK}
@@ -44,12 +44,32 @@ public final class PhysicsTestRecorder extends Module {
 		if (isRecording(user)) {
 			Position position = reader.position();
 			Rotation rotation = reader.rotation();
-			BoundingBox boundingBox = user.meta().movement().boundingBox();
-			recordingData.get(user).insertFrame(
-				boundingBox,
+			MovementMetadata movement = user.meta().movement();
+			BoundingBox boundingBox = movement.boundingBox();
+
+			Input input;
+			if (MinecraftVersions.VER1_21_3.atOrAbove() && user.meta().protocol().sendsInputs()) {
+				input = movement.input;
+			} else {
+				input = Input.partialFrom(movement);
+			}
+			MovementRecording recording = recordingData.get(user);
+			if (position == null && !recording.firstPositionHasBeenSent()) {
+				position = movement.position();
+			}
+			if (rotation == null && !recording.firstRotationHasBeenSent()) {
+				rotation = movement.rotation();
+			}
+			recording.insertFrame(
+				boundingBox, input,
 				position, rotation,
 				user.blockCache()
 			);
+
+			ActionBar.sendActionBar(
+				user.player(),
+				recording.frameCount() + " frames, " + recording.actions().size() + " actions, " + recording.collisionShapes().size() + " block-types"
+		  );
 		}
 	}
 

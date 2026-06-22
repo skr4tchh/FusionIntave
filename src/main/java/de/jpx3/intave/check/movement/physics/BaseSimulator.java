@@ -28,7 +28,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
 import java.util.Collection;
 
@@ -60,7 +59,7 @@ class BaseSimulator extends Simulator {
     updateInLava(user, environment);
     environment.updateEyesInWater();
   }
-  
+
   private void updateInWater(User user, Motion baseMotion, SimulationEnvironment environment) {
     MetadataBundle meta = user.meta();
     ProtocolMetadata clientData = meta.protocol();
@@ -811,15 +810,14 @@ class BaseSimulator extends Simulator {
 
   @Override
   public void setback(User user, SimulationEnvironment environment, double predictedX, double predictedY, double predictedZ) {
-//    MovementMetadata movement = user.meta().movement();
     ViolationMetadata violationMetadata = user.meta().violationLevel();
-    //    System.out.println("Past external velocity: " + movement.past(EXTERNAL_VELOCITY));
-    Vector emulationMotion = new Vector(predictedX, predictedY, predictedZ);
     int setbackTicks = (environment.ticksPast(EXTERNAL_VELOCITY) <= 8) ? 8 : ((violationMetadata.physicsVL > 50) ? 3 : 2);
     Modules.mitigate()
       .movement()
       .emulationSetBack(
-        user.player(), emulationMotion, setbackTicks, (environment.ticksPast(EXTERNAL_VELOCITY) > 16)
+        user.player(), Motion.of(
+          predictedX, predictedY, predictedZ
+        ), setbackTicks, (environment.ticksPast(EXTERNAL_VELOCITY) > 16)
       );
   }
 }

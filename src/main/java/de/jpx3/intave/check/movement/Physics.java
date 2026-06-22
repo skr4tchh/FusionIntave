@@ -20,7 +20,6 @@ import de.jpx3.intave.block.fluid.Fluid;
 import de.jpx3.intave.block.fluid.Fluids;
 import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.block.type.BlockTypeAccess;
-import de.jpx3.intave.block.type.MaterialSearch;
 import de.jpx3.intave.block.variant.BlockVariantNativeAccess;
 import de.jpx3.intave.check.Check;
 import de.jpx3.intave.check.CheckConfiguration.CheckSettings;
@@ -60,7 +59,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.util.Vector;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -192,26 +190,19 @@ public final class Physics extends Check {
     return Simulators.PLAYER;
   }
 
-  private static final Material POWDER_SNOW = MaterialSearch.materialThatIsNamed("POWDER_SNOW");
-
   @DispatchTarget
   public void endMovement(User user, boolean hasMovement) {
-    Player player = user.player();
-    MovementMetadata movementData = user.meta().movement();
+	  MovementMetadata movementData = user.meta().movement();
     ViolationMetadata violationMetadata = user.meta().violationLevel();
 
-    double motionX = movementData.endMotionXOverride ? movementData.endMotionXOverrideValue : movementData.motionX();
-    double motionY = movementData.endMotionYOverride ? movementData.endMotionYOverrideValue : movementData.motionY();
-    double motionZ = movementData.endMotionZOverride ? movementData.endMotionZOverrideValue : movementData.motionZ();
+    double motionX = !Double.isNaN(movementData.endMotionXOverride) ? movementData.endMotionXOverride : movementData.motionX();
+    double motionY = !Double.isNaN(movementData.endMotionYOverride) ? movementData.endMotionYOverride : movementData.motionY();
+    double motionZ = !Double.isNaN(movementData.endMotionZOverride) ? movementData.endMotionZOverride : movementData.motionZ();
     if (hasMovement) {
       Simulator simulator = movementData.simulator();
       if (movementData.ticksPast(VELOCITY) == 0) {
         if (movementData.physicsJumped && movementData.lastVelocityApplicableForJumpDenial()) {
           movementData.physicsJumpedOverrideVL++;
-//          if (movementData.applyJumpCM()) {
-//            SibylBroadcast.broadcast("[CM] " + player.getName() + " jumped with velocity");
-//            user.nerfOnce(AttackNerfStrategy.DMG_HIGH, "92");
-//          }
         } else if (movementData.physicsJumpedOverrideVL > 0) {
           movementData.physicsJumpedOverrideVL = Math.max(0, movementData.physicsJumpedOverrideVL - 0.5);
         }
@@ -233,34 +224,25 @@ public final class Physics extends Check {
           movementData.setBaseMotion(motion);
         }
       }
-
-      movementData.inactiveTick(FLYING_PACKET_ACCURATE);
-      movementData.inactiveTick(FLYING_PACKET_CLIENT);
-      movementData.inactiveTick(NEARBY_COLLISION_INACCURACY);
-      movementData.inactiveTick(ENTITY_USE);
-      if (movementData.ticksPast(ATTACK_REDUCE) < 100) {
-        movementData.inactiveTick(ATTACK_REDUCE);
-      }
-      if (movementData.ticksPast(WATERFLOW_PUSH) < 100) {
-        movementData.inactiveTick(WATERFLOW_PUSH);
-      }
-
+      movementData.inactiveTick(
+        FLYING_PACKET_ACCURATE,
+        FLYING_PACKET_CLIENT,
+        NEARBY_COLLISION_INACCURACY,
+        ENTITY_USE,
+        ATTACK_REDUCE,
+        WATERFLOW_PUSH
+      );
       if (movementData.onGround()) {
-        movementData.physicsPacketRelinkFlyVL = 0;
+        movementData.resetPhysicsPacketRelinkFlyVL();
       }
-
-      Material type = VolatileBlockAccess.typeAccess(user, player.getWorld(), movementData.position());
-      boolean climbingInPowderSnow = POWDER_SNOW != null && type == POWDER_SNOW && PowderSnowCollisionModifier.canWalkOnPowderSnow(player);
-      if (climbingInPowderSnow) {
-        movementData.activeTick(IN_POWDER_SNOW);
-      } else {
-        movementData.inactiveTick(IN_POWDER_SNOW);
-      }
+      Material type = VolatileBlockAccess.typeAccess(user, movementData.position());
+      boolean climbingInPowderSnow = type == BlockTypeAccess.POWDER_SNOW && PowderSnowCollisionModifier.canWalkOnPowderSnow(user);
+      movementData.tick(IN_POWDER_SNOW, climbingInPowderSnow);
       movementData.inactiveTick(EDGE_SNEAKING_TICK_GRANTS);
     }
-    movementData.endMotionXOverride = false;
-    movementData.endMotionYOverride = false;
-    movementData.endMotionZOverride = false;
+    movementData.endMotionXOverride = Double.NaN;
+    movementData.endMotionYOverride = Double.NaN;
+    movementData.endMotionZOverride = Double.NaN;
   }
 
   @DispatchTarget
@@ -432,34 +414,27 @@ public final class Physics extends Check {
       flyingJump = true;
       verticalViolationIncrease = 0;
 
-      movementData.endMotionYOverride = true;
-      movementData.endMotionYOverrideValue = predictedY;
+      movementData.endMotionYOverride = predictedY;
     }
 
     boolean expectProblems = movementData.ticksPast(ELYTRA_FLYING) <= 2 || movementData.ticksPast(IN_WATER) <= 2;
 
     if (distance > 0.01 && !expectProblems && (verticalViolationIncrease > 5 || horizontalViolationIncrease > 5)) {
       if (Math.abs(receivedMotionX) > 0.15 && differenceX > 0.025) {
-        movementData.endMotionXOverride = true;
-        movementData.endMotionXOverrideValue = predictedX * 0.98;
+        movementData.endMotionXOverride = predictedX * 0.98;
       }
       if (Math.abs(receivedMotionY) > 0.1 && differenceY > 0.1) {
-        movementData.endMotionYOverride = true;
-        movementData.endMotionYOverrideValue = (predictedY - 0.08) * 0.98;
+        movementData.endMotionYOverride = (predictedY - 0.08) * 0.98;
       }
       if (Math.abs(receivedMotionZ) > 0.15 && differenceZ > 0.025) {
-        movementData.endMotionZOverride = true;
-        movementData.endMotionZOverrideValue = predictedZ * 0.98;
+        movementData.endMotionZOverride = predictedZ * 0.98;
       }
     }
 
     if (movementData.ticksPast(VEHICLE_ATTACHMENT) <= 1) {
-      movementData.endMotionXOverride = true;
-      movementData.endMotionYOverride = true;
-      movementData.endMotionZOverride = true;
-      movementData.endMotionXOverrideValue = 0;
-      movementData.endMotionYOverrideValue = 0;
-      movementData.endMotionZOverrideValue = 0;
+      movementData.endMotionXOverride = 0;
+      movementData.endMotionYOverride = 0;
+      movementData.endMotionZOverride = 0;
     }
 
     // TODO: 05/28/22 check if this worked, and deal with adjustments
@@ -499,14 +474,14 @@ public final class Physics extends Check {
       /*
        * This will patch the hit-player-sneaking-on-a-block-edge bug (https://youtu.be/ONGnOwhQyac)
        */
-      Vector lastVelocity = movementData.sneakPatchVelocity;
+      Motion lastVelocity = movementData.sneakPatchVelocity;
       if (movementData.isSneaking() &&
         !movementData.onGround() &&
         lastVelocity != null
       ) {
-        predictedX = Math.abs(setbackMotion.motionX) < 0.05 ? setbackMotion.motionX + MathHelper.minmax(-0.05, lastVelocity.getX(), 0.05) : setbackMotion.motionX;
+        predictedX = Math.abs(setbackMotion.motionX) < 0.05 ? setbackMotion.motionX + MathHelper.minmax(-0.05, lastVelocity.motionX, 0.05) : setbackMotion.motionX;
         predictedY = setbackMotion.motionY;
-        predictedZ = Math.abs(setbackMotion.motionZ) < 0.05 ? setbackMotion.motionZ + MathHelper.minmax(-0.05, lastVelocity.getZ(), 0.05) : setbackMotion.motionZ;
+        predictedZ = Math.abs(setbackMotion.motionZ) < 0.05 ? setbackMotion.motionZ + MathHelper.minmax(-0.05, lastVelocity.motionZ, 0.05) : setbackMotion.motionZ;
         movementData.sneakPatchVelocity = null;
       } else {
         predictedX = setbackMotion.motionX;
@@ -587,7 +562,7 @@ public final class Physics extends Check {
         Violation violation = Violation.builderFor(Physics.class)
           .forPlayer(player).withMessage(message).withDetails(details).withVL(0).build();
         Modules.violationProcessor().processViolation(violation);
-        Vector emulationMotion = new Vector(predictedX, predictedY, predictedZ);
+        Motion emulationMotion = new Motion(predictedX, predictedY, predictedZ);
         Modules.mitigate().movement().emulationSetBack(player, emulationMotion, 2, true);
       }
     }
@@ -666,7 +641,7 @@ public final class Physics extends Check {
       granularDebugs.put("vehicle", movementData.isInVehicle() ? (movementData.isInRidingVehicle() ? "riding" : "passive") : "none");
       granularDebugs.put("insig", formatDouble(violationLevelData.physicsInsignificantBufferVL, 1));
       granularDebugs.put("acc/off", formatDouble(violationLevelData.physicsOffset, 2));
-      granularDebugs.put("s/c v", MinecraftVersion.getCurrentVersion().getVersion() + " / " + user.protocolVersion());
+      granularDebugs.put("s/c v", MinecraftVersion.current().getVersion() + " / " + user.protocolVersion());
       BlockShape collShape = Collision.shape(user, movementData, currentBoundingBox);
       granularDebugs.put("coll", collShape.toString());
       granularDebugs.put("coll_out", collShape.outline().toCompactString());
@@ -924,14 +899,14 @@ public final class Physics extends Check {
       if (flyingJump) {
         debug += ChatColor.ITALIC + " fjp" + chatColor;
       }
-      if (movementData.endMotionXOverride) {
-        debug += ChatColor.ITALIC + " emx:" + MathHelper.formatDouble(movementData.endMotionXOverrideValue, 4) + chatColor;
+      if (!Double.isNaN(movementData.endMotionXOverride)) {
+        debug += ChatColor.ITALIC + " emx:" + MathHelper.formatDouble(movementData.endMotionXOverride, 4) + chatColor;
       }
-      if (movementData.endMotionYOverride) {
-        debug += ChatColor.ITALIC + " emy:" + MathHelper.formatDouble(movementData.endMotionYOverrideValue, 4) + chatColor;
+      if (!Double.isNaN(movementData.endMotionYOverride)) {
+        debug += ChatColor.ITALIC + " emy:" + MathHelper.formatDouble(movementData.endMotionYOverride, 4) + chatColor;
       }
-      if (movementData.endMotionZOverride) {
-        debug += ChatColor.ITALIC + " emz:" + MathHelper.formatDouble(movementData.endMotionZOverrideValue, 4) + chatColor;
+      if (!Double.isNaN(movementData.endMotionZOverride)) {
+        debug += ChatColor.ITALIC + " emz:" + MathHelper.formatDouble(movementData.endMotionZOverride, 4) + chatColor;
       }
       if (movementData.step) {
         debug += ChatColor.ITALIC + " stp:" + formatDouble(movementData.stepHeightThisMove, 5) + chatColor;

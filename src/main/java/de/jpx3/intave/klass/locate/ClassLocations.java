@@ -25,7 +25,7 @@ final class ClassLocations implements Iterable<ClassLocation> {
 
   public ClassLocations reduceToCurrentVersion() {
     return filter(
-      classLocation -> classLocation.matchesVersion(MinecraftVersion.getCurrentVersion())
+      classLocation -> classLocation.matchesVersion(MinecraftVersion.current())
     );
   }
 

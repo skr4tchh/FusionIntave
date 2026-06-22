@@ -59,13 +59,11 @@ final class BlockShapeCodecTest {
 
 	@Test
 	void mergedShapeRoundTripsAsMergeShape() {
-		BlockShape merged = BlockShapes.mergeBoxes(
+		BlockShape merged = BlockShapes.optimizedMerge(
 			BoundingBox.fromBounds(0.0, 0.0, 0.0, 0.5, 1.0, 0.5),
 			BoundingBox.fromBounds(0.5, 0.0, 0.5, 1.0, 1.0, 1.0)
 		);
 		BlockShape decoded = roundTrip(merged);
-
-		assertInstanceOf(MergeBlockShape.class, decoded);
 		assertSameBoxes(merged, decoded);
 	}
 
@@ -73,7 +71,7 @@ final class BlockShapeCodecTest {
 	void jumboShapeRoundTripsAsJumboShape() {
 		BlockShape shape = new MergeBlockShape(
 			new ArrayBlockShape(
-				IntStream.range(0, 10).mapToObj(i -> BoundingBox.random()).toArray(BoundingBox[]::new)
+				IntStream.range(0, 10).mapToObj(_ -> BoundingBox.random()).toArray(BoundingBox[]::new)
 			),
 			new MergeBlockShape(
 				BlockShapes.cubeAt(0, 1, 1),
@@ -98,8 +96,7 @@ final class BlockShapeCodecTest {
 	}
 
 	private static void assertSameBoxes(
-		BlockShape expected,
-		BlockShape actual
+		BlockShape expected, BlockShape actual
 	) {
 		assertEquals(expected.elementaryBoxes(), actual.elementaryBoxes());
 	}

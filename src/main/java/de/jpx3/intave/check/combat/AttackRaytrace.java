@@ -720,7 +720,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
       });
     }
 
-    granular.put("s/c v", MinecraftVersion.getCurrentVersion().getVersion() + " / " + user.protocolVersion());
+    granular.put("s/c v", MinecraftVersion.current().getVersion() + " / " + user.protocolVersion());
     DebugBroadcast.broadcast(player, MessageCategory.ATRAFLT, MessageSeverity.HIGH, sibyl, sibyl);
     Violation violation = Violation.builderFor(AttackRaytrace.class)
       .forPlayer(player).withMessage(message).withDetails(details)

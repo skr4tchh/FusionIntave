@@ -289,7 +289,7 @@ run {
 fun registerPaperTestTask(serverVersion: String, javaVersion: Int) {
   tasks.register<RunServer>("test_${serverVersion}") {
     group = simpleName
-    dependsOn("build")
+    dependsOn("shadowJar")
     pluginJars.from("build/libs/$simpleName.jar")
     minecraftVersion(serverVersion)
     // Minecraft 1.8.8 requires special patches to work with Java 17
@@ -327,7 +327,7 @@ fun registerTestAllTask() {
 fun registerPaperRunTask(serverVersion: String, javaVersion: Int) {
   tasks.register<RunServer>("run_${serverVersion}") {
     group = simpleName
-    dependsOn("build")
+    dependsOn("shadowJar")
     pluginJars.from("build/libs/$simpleName.jar")
     minecraftVersion(serverVersion)
     // Minecraft 1.8.8 requires special patches to work with Java 17

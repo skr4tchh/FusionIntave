@@ -1,5 +1,7 @@
 package de.jpx3.intave.module.test.record;
 
+import de.jpx3.intave.adapter.MinecraftVersion;
+import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.Nullable;
 import de.jpx3.intave.block.cache.BlockCache;
 import de.jpx3.intave.block.cache.MockFullBlockStaticPlane;
@@ -11,10 +13,8 @@ import de.jpx3.intave.codec.ByteBufStreamCodecs;
 import de.jpx3.intave.codec.StreamCodec;
 import de.jpx3.intave.module.test.record.action.Action;
 import de.jpx3.intave.resource.Resource;
-import de.jpx3.intave.share.BlockPosition;
-import de.jpx3.intave.share.BoundingBox;
-import de.jpx3.intave.share.Position;
-import de.jpx3.intave.share.Rotation;
+import de.jpx3.intave.share.*;
+import de.jpx3.intave.user.User;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.bukkit.Material;
@@ -48,6 +48,8 @@ public final class MovementRecording {
 	public static final StreamCodec<ByteBuf, ByteBuf, MovementRecording> STREAM_CODEC = ByteBufStreamCodecs
 		.smartReflectionCodecBuilder(MovementRecording.class)
 		.field("internalId", ByteBufStreamCodecs.UUID)
+		.field("clientProtocolVersion", ByteBufStreamCodecs.INTEGER, () -> 47)
+		.field("serverVersion", MinecraftVersion.STREAM_CODEC, () -> MinecraftVersions.VER1_21_4)
 		.field("frames", MoveFrame.LIST_STREAM_CODEC)
 		.field("actions", Action.LIST_STREAM_CODEC, LinkedList::new)
 		.field("collisionShapes", COLLISION_SHAPES_CODEC, HashMap::new)
@@ -55,6 +57,8 @@ public final class MovementRecording {
 		.build();
 
 	private final UUID internalId;
+	private final int clientProtocolVersion;
+	private final MinecraftVersion serverVersion;
 	private final List<Action> actions = new LinkedList<>();
 	private final List<MoveFrame> frames = new LinkedList<>();
 	private final Map<BlockPosition, MaterialVariantStore> blocks = new HashMap<>();
@@ -62,12 +66,17 @@ public final class MovementRecording {
 	private final Map<Material, Map<Integer, Fluid>> fluids;
 
 	private MovementRecording(
-		UUID internalId, List<MoveFrame> frames,
+		UUID internalId,
+		int clientProtocolVersion,
+		MinecraftVersion serverVersion,
+		List<MoveFrame> frames,
 		List<Action> actions,
 		Map<Material, Map<Integer, BlockShape>> collisionShapes,
 		Map<Material, Map<Integer, Fluid>> fluids
 	) {
 		this.internalId = Objects.requireNonNull(internalId, "internalId cannot be null");
+		this.clientProtocolVersion = clientProtocolVersion;
+		this.serverVersion = Objects.requireNonNull(serverVersion, "serverVersion cannot be null");
 		this.frames.addAll(Objects.requireNonNull(frames, "frames cannot be null"));
 		this.actions.addAll(Objects.requireNonNull(actions, "actions cannot be null"));
 		this.collisionShapes = Objects.requireNonNull(collisionShapes, "collisionShapes cannot be null");
@@ -80,6 +89,7 @@ public final class MovementRecording {
 
 	public void insertFrame(
 		BoundingBox boundingBox,
+		Input input,
 		@Nullable Position position,
 		@Nullable Rotation rotation,
 		BlockCache blockCache
@@ -87,17 +97,33 @@ public final class MovementRecording {
 		Map<BlockPosition, MaterialVariantStore> dirtyBlocks = insertAndDelta(
 			nearbyBlocks(blockCache, boundingBox, position)
 		);
-		appendFrame(new MoveFrame(position, rotation, dirtyBlocks));
+		appendFrame(new MoveFrame(position, rotation, dirtyBlocks, input));
 	}
 
-	public void insertAction(
-		Action action
-	) {
+	public void insertAction(Action action) {
 		actions.add(action);
 	}
 
 	public long ticks() {
 		return frames.size();
+	}
+
+	public boolean firstPositionHasBeenSent() {
+		for (MoveFrame frame : frames) {
+			if (frame.moveTo() != null) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean firstRotationHasBeenSent() {
+		for (MoveFrame frame : frames) {
+			if (frame.rotateTo() != null) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void clear() {
@@ -165,6 +191,14 @@ public final class MovementRecording {
 		return internalId;
 	}
 
+	public int clientProtocolVersion() {
+		return clientProtocolVersion;
+	}
+
+	public MinecraftVersion serverVersion() {
+		return serverVersion;
+	}
+
 	public Map<Material, Map<Integer, BlockShape>> collisionShapes() {
 		return collisionShapes;
 	}
@@ -185,6 +219,8 @@ public final class MovementRecording {
 	public String toString() {
 		return "MovementRecording{" +
 			"internalId=" + internalId +
+			", clientProtocolVersion=" + clientProtocolVersion +
+			", serverVersion='" + serverVersion + '\'' +
 			", frames=" + frames +
 			", actions=" + actions +
 			", collisionShapes=" + collisionShapes +
@@ -198,6 +234,8 @@ public final class MovementRecording {
 		if (obj == null || getClass() != obj.getClass()) return false;
 		MovementRecording that = (MovementRecording) obj;
 		return Objects.equals(internalId, that.internalId) &&
+			clientProtocolVersion == that.clientProtocolVersion &&
+			Objects.equals(serverVersion, that.serverVersion) &&
 			Objects.equals(frames, that.frames) &&
 			Objects.equals(collisionShapes, that.collisionShapes) &&
 			Objects.equals(actions, that.actions) &&
@@ -206,11 +244,36 @@ public final class MovementRecording {
 
 	@Override
 	public int hashCode() {
-		return internalId.hashCode();
+		return Objects.hash(internalId, clientProtocolVersion, serverVersion);
+	}
+
+	public int frameCount() {
+		return frames.size();
 	}
 
 	public static MovementRecording create() {
-		return new MovementRecording(UUID.randomUUID(), new LinkedList<>(), new ArrayList<>(), new HashMap<>(), new HashMap<>());
+		return create(47, MinecraftVersions.VER1_21_4);
+	}
+
+	public static MovementRecording createFor(
+		User user
+	) {
+		return create(user.protocolVersion(), MinecraftVersion.current());
+	}
+
+	public static MovementRecording create(
+		int clientProtocolVersion,
+		MinecraftVersion serverVersion
+	) {
+		return new MovementRecording(
+			UUID.randomUUID(),
+			clientProtocolVersion,
+			serverVersion,
+			new LinkedList<>(),
+			new ArrayList<>(),
+			new HashMap<>(),
+			new HashMap<>()
+		);
 	}
 
 	public static MovementRecording loadFrom(
@@ -244,6 +307,7 @@ public final class MovementRecording {
 		for (int i = 0; i < 400; i++) {
 			movementRecording.insertFrame(
 				BoundingBox.empty(),
+				Input.random(),
 				ThreadLocalRandom.current().nextBoolean() ? Position.immutableRandom() : null,
 				ThreadLocalRandom.current().nextBoolean() ? Rotation.zero() : null,
 				blockCache

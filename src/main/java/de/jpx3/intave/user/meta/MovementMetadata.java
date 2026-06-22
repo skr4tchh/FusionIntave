@@ -58,7 +58,6 @@ public final class MovementMetadata implements SimulationEnvironment {
   public final BlockTrustChain placementTrustChain = new BlockTrustChain();
   public final Map<String, Double> serverMovementDebugValues = new HashMap<>();
   public final Map<String, Double> clientMovementDebugValues = new HashMap<>();
-  public boolean disabledFlying;
   public float width = 0.6f, height = 1.8f;
   public float stepHeight = 0.6f;
   public double stepHeightThisMove = 0d;
@@ -84,11 +83,11 @@ public final class MovementMetadata implements SimulationEnvironment {
   public long recordedMoves;
   public long invalidVehiclePositionTicks = 0;
   // Timestamps
-  public long lastSneakingTimestamps, lastJump, lastMovement, lastRotation;
-  public Vector emulationVelocity;
-  public Vector sneakPatchVelocity;
-  public Vector setbackOverrideVelocity = new Vector(0, 0, 0);
-  public Vector lastVelocity = new Vector();
+  public long lastTimeSneaking, lastTimeJumped, lastMovement, lastRotation;
+  public Motion emulationVelocity;
+  public Motion sneakPatchVelocity;
+  public Motion setbackOverrideVelocity = Motion.newEmpty();
+  public Motion lastVelocity = Motion.newEmpty();
   public boolean canResetMotion;
   public float frictionMultiplier = 0.09998f;
   public int lastPositionUpdate;
@@ -106,8 +105,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public boolean invalidMovement, suspiciousMovement;
   public double baseMotionX, baseMotionY, baseMotionZ; // base or last motion, exclusively for the physics check
   public double baseMotionXBeforeVelocity, baseMotionYBeforeVelocity, baseMotionZBeforeVelocity;
-  public boolean endMotionXOverride, endMotionYOverride, endMotionZOverride;
-  public double endMotionXOverrideValue, endMotionYOverrideValue, endMotionZOverrideValue;
+  public double endMotionXOverride = Double.NaN, endMotionYOverride = Double.NaN, endMotionZOverride = Double.NaN;
   public int highestLocalRiptideLevel = 0;
   public boolean physicsResetMotionX, physicsResetMotionZ;
   public int keyForward, keyStrafe;
@@ -129,10 +127,6 @@ public final class MovementMetadata implements SimulationEnvironment {
   // Jump prevention
   public boolean physicsJumped;
   public double physicsJumpedOverrideVL;
-  // If the player changes his hotbar slot the slot change packet will be sent *after* the movement
-  // To prevent a slot switch if the player changes his slot by itself we have to check if the movement is 2x wrong
-  // If the player does not have an active use-item this field will be set to 0
-  public int physicsEatingSlotSwitchVL;
   public boolean currentlyInBlock;
   // Entity collision
   public boolean enforceBoatStep;
@@ -208,8 +202,8 @@ public final class MovementMetadata implements SimulationEnvironment {
   public double criticalEnterPosX, criticalEnterPosY, criticalEnterPosZ;
   public final RateLimiter criticalTeleportRateLimiter = new RateLimiter(10, 2, TimeUnit.SECONDS);
   private volatile Location verifiedLocation;
-  public Input input = new Input();
-  public Input lastInput = new Input();
+  public Input input = Input.none();
+  public Input lastInput = Input.none();
 
   private final Map<MoveMetric, Integer> activeTracker = new EnumMap<>(MoveMetric.class);
   private final Map<MoveMetric, Integer> pastTracker = new EnumMap<>(MoveMetric.class);
@@ -819,13 +813,13 @@ public final class MovementMetadata implements SimulationEnvironment {
   private void updateEntityActionStates() {
     MetadataBundle meta = user.meta();
     AbilityMetadata abilities = meta.abilities();
-    ProtocolMetadata clientData = meta.protocol();
+    ProtocolMetadata protocol = meta.protocol();
     InventoryMetadata inventoryData = meta.inventory();
     sprintingAllowed = sprinting;
-    if (sneaking && !clientData.sprintWhenSneaking()) {
+    if (sneaking && !protocol.canSprintWhileSneaking()) {
       sprintingAllowed = false;
     }
-    boolean preventWaterSprint = clientData.waterUpdate() && inWater && !isSwimming(user);
+    boolean preventWaterSprint = protocol.waterUpdate() && inWater && !isSwimming(user);
     if (inventoryData.inventoryOpen() || abilities.foodLevel <= 6 || preventWaterSprint) {
       sprintingAllowed = false;
     }
@@ -898,7 +892,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   }
 
   public boolean lastVelocityApplicableForJumpDenial() {
-    return lastVelocity != null && lastVelocity.clone().setY(0).length() > 0.2;
+    return lastVelocity != null && lastVelocity.horizontalLength() > 0.2;
   }
 
   public double baseMoveSpeed() {
@@ -955,7 +949,12 @@ public final class MovementMetadata implements SimulationEnvironment {
     pastTracker.put(metric, ticksPast(metric) + 1);
   }
 
-	@Override
+  @Override
+  public void resetPhysicsPacketRelinkFlyVL() {
+    physicsPacketRelinkFlyVL = 0;
+  }
+
+  @Override
   public int ticks(MoveMetric metric) {
     return activeTracker.getOrDefault(metric, metric.activeDefault());
   }
@@ -1017,6 +1016,105 @@ public final class MovementMetadata implements SimulationEnvironment {
     }
     if (user.meta().protocol().newBlockEntityIntersectionLogic()) {
       setBeforeMoveColliderResult(collider);
+    }
+  }
+
+  @Override
+  public void tickComplete(
+    boolean hasMovement,
+    boolean hasRotation
+  ) {
+    step = false;
+    reduceTicks = 0;
+    invalidMovement = false;
+    externalKeyApply = false;
+    suspiciousMovement = false;
+    ignoredAttackReduce = false;
+    isTeleportConfirmationPacket = false;
+    dropPostTickMotionProcessing = false;
+    physicsUnpredictableVelocityExpected = false;
+    lastSprinting = sprinting;
+    lastSneaking = sneaking;
+
+    if (shulkerXToleranceRemaining > 0) {
+      shulkerXToleranceRemaining--;
+    }
+    if (shulkerYToleranceRemaining > 0) {
+      shulkerYToleranceRemaining--;
+      if (shulkerYToleranceRemaining == 0) {
+        highestShulkerY = Integer.MIN_VALUE;
+        lowestShulkerY = Integer.MAX_VALUE;
+      }
+    }
+    if (shulkerZToleranceRemaining > 0) {
+      shulkerZToleranceRemaining--;
+    }
+
+    if (pistonMotionToleranceRemaining > 0) {
+      pistonMotionToleranceRemaining--;
+    }
+
+    tick(IN_WEB, inWeb());
+    tick(IN_WATER, inWater());
+    tick(SNEAKING, isSneaking());
+    tick(SPRINTING, isSprinting());
+    tick(TELEPORT, isTeleportConfirmationPacket);
+    tick(ELYTRA_FLYING, elytraFlying);
+    tick(INVENTORY_OPEN, user.meta().inventory().inventoryOpen());
+
+    inactiveTick(
+      STEP,
+      IN_LAVA,
+      VELOCITY,
+      EDGE_SNEAKING,
+      SPRINT_CHANGE,
+      LONG_TELEPORT,
+      BLOCK_PLACEMENT,
+      FIREWORK_ROCKETS,
+      VEHICLE_ATTACHMENT,
+      VEHICLE_DETACHMENT,
+      RECEIVED_VELOCITY_PACKET
+    );
+
+    if (hasMovement || hasRotation) {
+      inactiveTick(EXTERNAL_VELOCITY);
+    }
+
+    width = pose.width(user);
+    height = pose.height(user);
+
+    // misc
+    if (ticks(SNEAKING) > 1) {
+      lastTimeSneaking = System.currentTimeMillis();
+    }
+    if (physicsJumped) {
+      lastTimeJumped = System.currentTimeMillis();
+    }
+
+    shulkerCleanup();
+  }
+
+  private void shulkerCleanup() {
+    if (!shulkerData.isEmpty()) {
+      int shulkerLimit = 2048;
+      for (Iterator<BlockPosition> iterator = shulkers.iterator(); iterator.hasNext(); ) {
+        if (shulkerLimit-- <= 0) {
+          break;
+        }
+        BlockPosition shulkerBlock = iterator.next();
+        ShulkerBox shulkerBox = shulkerData.get(shulkerBlock);
+        if (shulkerBox == null) {
+          iterator.remove();
+          continue;
+        }
+        if (shulkerBox.complete()) {
+          iterator.remove();
+          shulkerData.remove(shulkerBlock);
+          shulkerDataHashCodeAccess.remove(shulkerBox.hashCode());
+        } else if (shulkerBox.shouldTick()) {
+          shulkerBox.tick();
+        }
+      }
     }
   }
 

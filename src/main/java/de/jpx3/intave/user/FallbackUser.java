@@ -371,6 +371,11 @@ final class FallbackUser implements User {
   }
 
   @Override
+  public void sendMessage(String message) {
+
+  }
+
+  @Override
   public void unregister() {
     FakePlayer fakePlayer = meta().attack().fakePlayer();
     if (fakePlayer != null) {

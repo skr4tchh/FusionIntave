@@ -99,11 +99,6 @@ public final class MockFullBlockStaticPlane implements BlockCache {
   }
 
   @Override
-  public BlockState overrideOf(int posX, int posY, int posZ) {
-    return null;
-  }
-
-  @Override
   public void lockOverride(int posX, int posY, int posZ) {
 
   }

@@ -92,8 +92,8 @@ public final class Speed extends PlayerCheckPart<PlacementAnalysis> {
 				double average = placementSpeedHistory.stream().mapToDouble(value -> value).average().orElse(500);
 				boolean inOneLine = isOneLine(this.placementHistory);
 
-				boolean noSneaking = System.currentTimeMillis() - movementData.lastSneakingTimestamps > 8000;
-				boolean recentJump = System.currentTimeMillis() - movementData.lastJump < 750;
+				boolean noSneaking = System.currentTimeMillis() - movementData.lastTimeSneaking > 8000;
+				boolean recentJump = System.currentTimeMillis() - movementData.lastTimeJumped < 750;
 				float yawToNextNinetyDeg = Math.abs(user.meta().movement().rotationYaw()) % 90;
 				boolean ninetyDegreeAngle = yawToNextNinetyDeg < 10 || yawToNextNinetyDeg > 80;
 

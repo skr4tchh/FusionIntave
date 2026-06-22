@@ -555,6 +555,11 @@ public interface User {
   void message(String key, Object... args);
 
   /**
+   * Send a message to the player, without localization
+   */
+  void sendMessage(String message);
+
+  /**
    * Unregister a user
    */
   void unregister();

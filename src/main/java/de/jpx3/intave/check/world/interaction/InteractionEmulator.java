@@ -11,7 +11,6 @@ import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.cache.BlockCache;
 import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.block.fluid.Fluid;
-import de.jpx3.intave.block.fluid.Fluids;
 import de.jpx3.intave.block.physics.MaterialMagic;
 import de.jpx3.intave.block.type.BlockTypeAccess;
 import de.jpx3.intave.block.type.MaterialSearch;
@@ -643,7 +642,7 @@ public final class InteractionEmulator implements EventProcessor {
       int variant = blockStateAccess.variantIndexAt(block.getX(), block.getY(), block.getZ());
       BlockVariant properties = BlockVariantRegister.variantOf(type, variant);
       String propertyString = "{"+properties.propertyNames().stream().map(s -> s + ": " + properties.propertyOf(s)).collect(Collectors.joining(", ")) +"}";
-      Fluid fluid = Fluids.fluidAt(userOf(player), block.getX(), block.getY(), block.getZ());
+      Fluid fluid = VolatileBlockAccess.fluidAccess(userOf(player), block.getX(), block.getY(), block.getZ());
       player.sendMessage(type + "/" + variant + "."+propertyString+" f"+ fluid +" -> " + blockStateAccess.collisionShapeAt(block.getX(), block.getY(), block.getZ()) +"/"+blockStateAccess.outlineShapeAt(block.getX(), block.getY(), block.getZ()));
     }
 

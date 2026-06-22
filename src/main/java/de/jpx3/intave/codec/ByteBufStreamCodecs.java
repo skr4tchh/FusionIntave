@@ -8,6 +8,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.util.ReferenceCounted;
 import org.bukkit.Material;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -36,7 +37,7 @@ public final class ByteBufStreamCodecs {
     }
   );
   public static final StreamCodec<ByteBuf, ByteBuf, String> STRING = BYTE_ARRAY.beforeAndAfter(String::new, String::getBytes);
-  public static final StreamCodec<ByteBuf, ByteBuf, Material> MATERIAL = STRING.beforeAndAfter(Material::getMaterial, Material::name);
+  public static final StreamCodec<ByteBuf, ByteBuf, Material> MATERIAL = STRING.beforeAndAfter(ByteBufStreamCodecs::findOrThrow, Material::name);
   public static final StreamCodec<ByteBuf, ByteBuf, UUID> UUID = StreamCodec.of(
     (buf, uuid) -> {
       buf.writeLong(uuid.getMostSignificantBits());
@@ -88,6 +89,27 @@ public final class ByteBufStreamCodecs {
     Class<T> type
   ) {
     return ByteBufStreamCodecs.<T>smartCodec().reflectionBuilderOn(type);
+  }
+
+  private final static Map<String, String> MATERIAL_ALIASES = new HashMap<>();
+
+  static {
+    MATERIAL_ALIASES.put("STATIONARY_WATER", "WATER");
+    MATERIAL_ALIASES.put("STATIONARY_LAVA", "LAVA");
+  }
+
+  private static Material findOrThrow(String name) {
+    Material material = Material.getMaterial(name);
+    if (material == null) {
+      String alias = MATERIAL_ALIASES.get(name);
+      if (alias != null) {
+        material = Material.getMaterial(alias);
+      }
+    }
+    if (material == null) {
+      throw new IllegalArgumentException("Unknown material: " + name);
+    }
+    return material;
   }
 
   private static byte[] copyAndRelease(

@@ -26,6 +26,7 @@ public final class AbilityMetadata {
   private final Player player;
   private boolean flying;
   private boolean allowFlying;
+  public boolean disabledFlying;
 
   private AbilityTracker.GameMode gameMode = NOT_SET;
   private AbilityTracker.GameMode pendingGameMode = NOT_SET;
@@ -269,6 +270,15 @@ public final class AbilityMetadata {
       setFlying(true);
     }
     this.gameMode = gameMode;
+  }
+
+  public void tickComplete() {
+    ticksToLastHealthUpdate++;
+
+    if (disabledFlying || !allowFlying()) {
+      setFlying(false);
+      disabledFlying = false;
+    }
   }
 
   public void setPendingGameMode(AbilityTracker.GameMode pendingGameMode) {

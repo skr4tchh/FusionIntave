@@ -3,6 +3,7 @@ package de.jpx3.intave.share;
 import de.jpx3.intave.block.shape.BlockRaytrace;
 import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.check.movement.physics.environment.SimulationEnvironment;
+import de.jpx3.intave.codec.ByteBufStreamCodecs;
 import de.jpx3.intave.codec.StreamCodec;
 import de.jpx3.intave.diagnostic.MemoryTraced;
 import de.jpx3.intave.math.MathHelper;
@@ -32,8 +33,12 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
 
   public static final StreamCodec<ByteBuf, ByteBuf, BoundingBox> STREAM_CODEC = StreamCodec.of(
     (buf, box) -> {
-      buf.writeDouble(box.minX); buf.writeDouble(box.minY); buf.writeDouble(box.minZ);
-      buf.writeDouble(box.maxX); buf.writeDouble(box.maxY); buf.writeDouble(box.maxZ);
+      buf.writeDouble(box.minX);
+      buf.writeDouble(box.minY);
+      buf.writeDouble(box.minZ);
+      buf.writeDouble(box.maxX);
+      buf.writeDouble(box.maxY);
+      buf.writeDouble(box.maxZ);
       buf.writeBoolean(box.originBox);
     },
     (buf) -> {
@@ -47,6 +52,8 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
       return boundingBox;
     }
   );
+
+  public static final StreamCodec<ByteBuf, ByteBuf, List<BoundingBox>> LIST_STREAM_CODEC = ByteBufStreamCodecs.listCodecOf(STREAM_CODEC);
 
   public BoundingBox(
     double x1, double y1, double z1,

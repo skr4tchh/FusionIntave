@@ -75,6 +75,13 @@ public final class Fluids {
     }
   }
 
+  public static void overrideFluids(
+    Map<Material, Map<Integer, Fluid>> newFluids
+  ) {
+    liquidData.clear();
+    liquidData.putAll(newFluids);
+  }
+
   public static FluidFlow suitableWaterflowFor(User user) {
     return user.meta().protocol().waterUpdate() ? v13Waterflow : v8Waterflow;
   }

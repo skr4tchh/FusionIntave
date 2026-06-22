@@ -1,5 +1,8 @@
 package de.jpx3.intave.adapter;
 
+import de.jpx3.intave.codec.ByteBufStreamCodecs;
+import de.jpx3.intave.codec.StreamCodec;
+import io.netty.buffer.ByteBuf;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 
@@ -11,6 +14,14 @@ import java.util.regex.Pattern;
 
 public final class MinecraftVersion implements Comparable<MinecraftVersion> {
 	private static final Pattern VERSION_PATTERN;
+
+	public static final StreamCodec<ByteBuf, ByteBuf, MinecraftVersion> STREAM_CODEC = StreamCodec.compound(
+		ByteBufStreamCodecs.INTEGER, MinecraftVersion::getMajor,
+		ByteBufStreamCodecs.INTEGER, MinecraftVersion::getMinor,
+		ByteBufStreamCodecs.INTEGER, MinecraftVersion::getBuild,
+		MinecraftVersion::new
+	);
+
 	private static MinecraftVersion currentVersion;
 	private final int major;
 	private final int minor;
@@ -59,7 +70,7 @@ public final class MinecraftVersion implements Comparable<MinecraftVersion> {
 	}
 
 	public MinecraftVersion(int major, int minor, int build) {
-		this(major, minor, build, (String) null);
+		this(major, minor, build, null);
 	}
 
 	public MinecraftVersion(int major, int minor, int build, String development) {
@@ -68,6 +79,10 @@ public final class MinecraftVersion implements Comparable<MinecraftVersion> {
 		this.build = build;
 		this.development = development;
 		this.snapshot = null;
+	}
+
+	public com.comphenix.protocol.utility.MinecraftVersion toProtocolLibVersion() {
+		return new com.comphenix.protocol.utility.MinecraftVersion(this.major, this.minor, this.build);
 	}
 
 	public static String extractVersion(String text) {
@@ -83,7 +98,7 @@ public final class MinecraftVersion implements Comparable<MinecraftVersion> {
 		return new MinecraftVersion(extractVersion(serverVersion));
 	}
 
-	public static MinecraftVersion getCurrentVersion() {
+	public static MinecraftVersion current() {
 		if (currentVersion == null) {
 			currentVersion = fromServerVersion(Bukkit.getVersion());
 		}
@@ -91,12 +106,15 @@ public final class MinecraftVersion implements Comparable<MinecraftVersion> {
 		return currentVersion;
 	}
 
-	public static void setCurrentVersion(MinecraftVersion version) {
+	public static void setCurrent(MinecraftVersion version) {
 		currentVersion = version;
+		com.comphenix.protocol.utility.MinecraftVersion.setCurrentVersion(
+			version.toProtocolLibVersion()
+		);
 	}
 
 	private static boolean atOrAbove(MinecraftVersion version) {
-		return getCurrentVersion().isAtLeast(version);
+		return current().isAtLeast(version);
 	}
 
 	private int[] parseVersion(String version) {

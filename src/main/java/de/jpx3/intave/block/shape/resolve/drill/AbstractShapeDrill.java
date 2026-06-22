@@ -18,7 +18,9 @@ abstract class AbstractShapeDrill implements ShapeResolverPipeline {
     for (Object bb : bbs) {
       list.add(WrapperConverter.boundingBoxFromAABB(bb));
     }
-    return BlockShapes.merge(list);
+    BlockShape merged = BlockShapes.optimizedMerge(list);
+    System.out.println(list.size() + " -> " + merged.elementaryBoxes().size());
+    return merged;
   }
 
   protected BlockShape translateWithOffset(List<?> bbs, int posX, int posY, int posZ) {
@@ -31,6 +33,6 @@ abstract class AbstractShapeDrill implements ShapeResolverPipeline {
       boundingBox.makeOriginBox();
       list.add(boundingBox);
     }
-    return BlockShapes.mergeBoxes(list).contextualized(posX, posY, posZ);
+    return BlockShapes.optimizedMerge(list).contextualized(posX, posY, posZ);
   }
 }

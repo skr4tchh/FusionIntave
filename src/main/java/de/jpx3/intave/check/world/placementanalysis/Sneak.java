@@ -58,7 +58,7 @@ public final class Sneak extends PlayerCheckPart<PlacementAnalysis> {
 			if (placementSpeedHistory.size() >= CHECK_LENGTH) {
 				double average = placementSpeedHistory.stream().mapToDouble(value -> value).average().orElse(500);
 				boolean inOneLine = isOneLine(this.placementHistory);
-				boolean noSneaking = System.currentTimeMillis() - movementData.lastSneakingTimestamps > 6000;
+				boolean noSneaking = System.currentTimeMillis() - movementData.lastTimeSneaking > 6000;
 				double limit = 500;
 
 				int speedAmplifier = potionData.potionEffectSpeedAmplifier();

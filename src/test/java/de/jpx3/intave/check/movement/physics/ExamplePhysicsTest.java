@@ -39,7 +39,7 @@ public final class ExamplePhysicsTest {
 
 	@BeforeEach
 	void setUp() {
-		MinecraftVersion.setCurrentVersion(MinecraftVersions.VER1_21_4);
+		MinecraftVersion.setCurrent(MinecraftVersions.VER1_21_4);
 		com.comphenix.protocol.utility.MinecraftVersion.setCurrentVersion(com.comphenix.protocol.utility.MinecraftVersion.v1_21_4);
 
 		DrillResolver.manualInit(MockShapeResolverPipeline.createStoneDefault());
@@ -66,7 +66,7 @@ public final class ExamplePhysicsTest {
 		int protocolVersion = 47;
 		MockFullBlockStaticPlane plane = MockFullBlockStaticPlane.createWithHorizontalPlaneAt(0);
 
-		testUser = UserFactory.createTestUserFor(player, s -> switch (s) {
+		testUser = UserFactory.createTestUserFor(player, (usr, s) -> switch (s) {
 			case "collider" -> collider;
 			case "waterflow" -> waterflow;
 			case "simplifiedCollider" -> simpleCollider;
@@ -87,7 +87,7 @@ public final class ExamplePhysicsTest {
 
 		for (int i = 0; i < 500; i++) {
 			simulator.simulateBetween(testUser, metadata, i % 2 == 1 ? configW : configS);
-			System.out.println(metadata.position() + " " + metadata.mutableBaseMotionCopy());
+//			System.out.println(metadata.position() + " " + metadata.mutableBaseMotionCopy());
 			assertTrue(
 				metadata.verifiedLastPositionY() >= 1.0,
 				"Player fell through the platform at tick " + i + ": " + metadata.verifiedLastPosition()

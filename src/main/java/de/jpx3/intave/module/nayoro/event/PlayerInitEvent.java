@@ -13,7 +13,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 public final class PlayerInitEvent extends Event {
-  private static final int CURRENT_SERVER_VERSION = ProtocolVersionConverter.protocolVersionBy(MinecraftVersion.getCurrentVersion());
+  private static final int CURRENT_SERVER_VERSION = ProtocolVersionConverter.protocolVersionBy(MinecraftVersion.current());
 
   private int id;
   private int clientVersion;

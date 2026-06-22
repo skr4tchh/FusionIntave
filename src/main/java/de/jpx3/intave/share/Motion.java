@@ -11,6 +11,7 @@ import org.bukkit.util.Vector;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static de.jpx3.intave.math.MathHelper.formatDouble;
 import static de.jpx3.intave.math.MathHelper.hypot3d;
 
 public final class Motion {
@@ -200,7 +201,11 @@ public final class Motion {
 
 	@Override
 	public String toString() {
-		return "(" + motionX + ", " + motionY + ", " + motionZ + ")";
+		return "(" + formatDouble(motionX, 4) + ", " + formatDouble(motionY, 4) + ", " + formatDouble(motionZ, 4) + ")";
+	}
+
+	public boolean isZero() {
+		return motionX == 0.0 && motionY == 0.0 && motionZ == 0.0;
 	}
 
 	public static Motion newEmpty() {

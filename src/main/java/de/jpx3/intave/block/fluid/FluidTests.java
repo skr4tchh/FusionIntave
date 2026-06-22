@@ -95,7 +95,7 @@ public final class FluidTests extends IntegrationTests {
       return null;
     });
     BlockCache blockStateCache = BlockCaches.passthroughCacheWithNativeDrill(player);
-    User user = UserFactory.createTestUserFor(player, s -> {
+    User user = UserFactory.createTestUserFor(player, (usr, s) -> {
       if (s.equals("protocolVersion")) {
         return 477;
       }

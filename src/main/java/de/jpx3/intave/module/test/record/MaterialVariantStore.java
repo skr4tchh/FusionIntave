@@ -62,7 +62,14 @@ public final class MaterialVariantStore {
 	private final static Map<Material, Map<Integer, MaterialVariantStore>> cache = new ConcurrentHashMap<>();
 
 	public static @NotNull MaterialVariantStore of(Material type, int variantIndex) {
+		if (type == null) {
+			throw new IllegalArgumentException("Material type cannot be null");
+		}
 		return cache.computeIfAbsent(type, t -> new HashMap<>())
 			.computeIfAbsent(variantIndex, i -> new MaterialVariantStore(type, variantIndex));
+	}
+
+	public static @NotNull MaterialVariantStore air() {
+		return of(Material.AIR, 0);
 	}
 }

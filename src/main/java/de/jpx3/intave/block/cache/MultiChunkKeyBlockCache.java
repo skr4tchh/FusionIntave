@@ -45,7 +45,7 @@ final class MultiChunkKeyBlockCache implements BlockCache {
   ) {
     this.player = player;
     this.shapeResolver = resolver;
-    this.replacementCache = new BlockStateReplacementCache<>(player, MultiChunkKeyBlockCache::bigKey);
+    this.replacementCache = new BlockStateReplacementCache<>(MultiChunkKeyBlockCache::bigKey);
   }
 
   @Override
@@ -81,26 +81,6 @@ final class MultiChunkKeyBlockCache implements BlockCache {
       }
     }
     return blockState;
-  }
-
-  @Override
-  public @NotNull BlockShape collisionShapeAt(int posX, int posY, int posZ) {
-    return stateAt(posX, posY, posZ).collisionShape();
-  }
-
-  @Override
-  public @NotNull BlockShape outlineShapeAt(int posX, int posY, int posZ) {
-    return stateAt(posX, posY, posZ).outlineShape();
-  }
-
-  @Override
-  public @NotNull Material typeAt(int posX, int posY, int posZ) {
-    return stateAt(posX, posY, posZ).type();
-  }
-
-  @Override
-  public int variantIndexAt(int posX, int posY, int posZ) {
-    return stateAt(posX, posY, posZ).variantIndex();
   }
 
   @Override
@@ -231,12 +211,6 @@ final class MultiChunkKeyBlockCache implements BlockCache {
   public boolean currentlyInOverride(int posX, int posY, int posZ) {
     long key = bigKey(posX, posY, posZ);
     return replacementCache.contains(key);
-  }
-
-  @Override
-  public BlockState overrideOf(int posX, int posY, int posZ) {
-    long key = bigKey(posX, posY, posZ);
-    return replacementCache.byKey(key);
   }
 
   @Override

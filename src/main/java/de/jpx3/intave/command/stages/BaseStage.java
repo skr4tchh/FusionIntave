@@ -9,6 +9,7 @@ import de.jpx3.intave.command.SubCommand;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.actionbar.ActionBarDisplayer;
 import de.jpx3.intave.module.actionbar.DisplayType;
+import de.jpx3.intave.module.test.PhysicsTestRecorder;
 import de.jpx3.intave.module.violation.ViolationVerboseMode;
 import de.jpx3.intave.player.ProfileLookup;
 import de.jpx3.intave.user.MessageChannel;
@@ -31,6 +32,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -291,24 +294,44 @@ public final class BaseStage extends CommandStage {
     }
   }
 
-//  @SubCommand(
-//    selectors = "notify",
-//    usage = "",
-//    description = "Toggle notifications",
-//    permission = "intave.command.notify"
-//  )
-//  public void notifyCommand(User user) {
-//    Player player = user.player();
-//
-//    boolean receiveNotify = user.receives(MessageChannel.NOTIFY);
-//    user.toggleReceive(MessageChannel.NOTIFY);
-//
-//    if (receiveNotify) {
-//      player.sendMessage(IntavePlugin.prefix() + "You are " + ChatColor.RED + "no longer " + IntavePlugin.defaultColor() + "receiving notifications");
-//    } else {
-//      player.sendMessage(IntavePlugin.prefix() + "You are " + ChatColor.GREEN + "now " + IntavePlugin.defaultColor() + "receiving notifications");
-//    }
-//  }
+  @SubCommand(selectors = "record")
+  public void recordCommand(User user) {
+    PhysicsTestRecorder recorder = Modules.physicsTestRecorder();
+    boolean recording = recorder.isRecording(user);
+    recorder.setRecordingStatus(user, !recording);
+
+    if (recording) {
+      user.player().sendMessage(ChatColor.RED + "Stopped recording..");
+
+      File file;
+      File resourcesFolder = new File(IntavePlugin.singletonInstance().dataFolder(), "../../../../src/test/resources");
+      if (resourcesFolder.exists()) {
+        file = new File(
+          resourcesFolder,
+          "/physics_test_runs/pending/" + UUID.randomUUID() + ".ptr"
+        );
+      } else {
+        file = new File(
+          IntavePlugin.singletonInstance().dataFolder(),
+          "/recordings/" + UUID.randomUUID() + ".ptr"
+        );
+      }
+      file.getParentFile().mkdirs();
+      try {
+        recorder.saveRecordingDataTo(user, file);
+      } catch (IOException e) {
+        user.player().sendMessage(ChatColor.RED + "Failed to save recording: " + e.getMessage());
+        return;
+      }
+      try {
+        user.player().sendMessage(ChatColor.GREEN + "Saved recording to " + file.getCanonicalPath());
+      } catch (IOException e) {
+        user.player().sendMessage(ChatColor.GREEN + "Saved recording to " + file.getAbsolutePath());
+      }
+    } else {
+      user.player().sendMessage(ChatColor.GREEN + "Started recording..");
+    }
+  }
 
   @SubCommand(
     selectors = {"history", "logs"},

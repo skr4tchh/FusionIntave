@@ -16,6 +16,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.metadata.MetadataValue;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
@@ -168,6 +169,10 @@ public final class VolatileBlockAccess {
     return typeAccess(user, user.player().getWorld(), position.getBlockX(), position.getBlockY(), position.getBlockZ());
   }
 
+  public static Material typeAccess(User user, Position position) {
+    return typeAccess(user, user.player().getWorld(), position.getBlockX(), position.getBlockY(), position.getBlockZ());
+  }
+
   public static Material typeAccess(User user, World world, Position position) {
     return typeAccess(user, world, position.getBlockX(), position.getBlockY(), position.getBlockZ());
   }
@@ -185,7 +190,7 @@ public final class VolatileBlockAccess {
     return typeAccess(user, blockAccess, floor(x), floor(y), floor(z));
   }
 
-  public static Material typeAccess(User user, World blockAccess, int blockX, int blockY, int blockZ) {
+  public static @NotNull Material typeAccess(User user, World blockAccess, int blockX, int blockY, int blockZ) {
     if (blockAccess == null || isInLoadedChunk(blockAccess, blockX, blockZ) || Bukkit.isPrimaryThread()) {
       return user.blockCache().typeAt(blockX, blockY, blockZ);
     }

@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface BlockCache {
   default @NotNull BlockState stateAt(int posX, int posY, int posZ) {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("stateAt(int, int, int) is not implemented");
   }
 
   /**
@@ -19,7 +19,9 @@ public interface BlockCache {
    * @param posZ the blocks z coordinate
    * @return the blocks bounding boxes
    */
-  @NotNull BlockShape outlineShapeAt(int posX, int posY, int posZ);
+  default @NotNull BlockShape outlineShapeAt(int posX, int posY, int posZ) {
+    return stateAt(posX, posY, posZ).outlineShape();
+  }
 
   default @NotNull BlockShape outlineShapeAt(BlockPosition position) {
     return outlineShapeAt(position.getBlockX(), position.getBlockY(), position.getBlockZ());
@@ -33,7 +35,9 @@ public interface BlockCache {
    * @param posZ the blocks z coordinate
    * @return the blocks bounding boxes
    */
-  @NotNull BlockShape collisionShapeAt(int posX, int posY, int posZ);
+  default @NotNull BlockShape collisionShapeAt(int posX, int posY, int posZ) {
+    return stateAt(posX, posY, posZ).collisionShape();
+  }
 
   default @NotNull BlockShape collisionShapeAt(BlockPosition position) {
     return collisionShapeAt(position.getBlockX(), position.getBlockY(), position.getBlockZ());
@@ -47,7 +51,9 @@ public interface BlockCache {
    * @param posZ the blocks z coordinate
    * @return the blocks type
    */
-  @NotNull Material typeAt(int posX, int posY, int posZ);
+  default @NotNull Material typeAt(int posX, int posY, int posZ) {
+    return stateAt(posX, posY, posZ).type();
+  }
 
   default @NotNull Material typeAt(BlockPosition position) {
     return typeAt(position.getBlockX(), position.getBlockY(), position.getBlockZ());
@@ -61,7 +67,9 @@ public interface BlockCache {
    * @param posZ the blocks z coordinate
    * @return the blocks variant index
    */
-  int variantIndexAt(int posX, int posY, int posZ);
+  default int variantIndexAt(int posX, int posY, int posZ) {
+    return stateAt(posX, posY, posZ).variantIndex();
+  }
 
   default int variantIndexAt(BlockPosition position) {
     return variantIndexAt(position.getBlockX(), position.getBlockY(), position.getBlockZ());
@@ -84,17 +92,6 @@ public interface BlockCache {
    * @return whether the block is currently in override
    */
   boolean currentlyInOverride(int posX, int posY, int posZ);
-
-  /**
-   * Retrieve the blocks override
-   *
-   * @param posX the x coordinate of the selected block
-   * @param posY the y coordinate of the selected block
-   * @param posZ the z coordinate of the selected block
-   * @return the override's blockshape
-   */
-  @Deprecated
-  BlockState overrideOf(int posX, int posY, int posZ);
 
  /**
   * Locks the specified location from being overridden

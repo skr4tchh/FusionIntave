@@ -52,6 +52,14 @@ public final class PlayerMoveReader extends AbstractPacketReader {
 		return new Rotation(rotations.read(0), rotations.read(1));
 	}
 
+	public boolean onGround() {
+		return packet().getBooleans().read(0);
+	}
+
+	public void setOnGround(boolean onGround) {
+		packet().getBooleans().write(0, onGround);
+	}
+
 	public void setPositionX(double x) {
 		movements().write(0, x);
 	}

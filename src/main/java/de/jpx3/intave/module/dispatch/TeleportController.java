@@ -46,7 +46,7 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Client.TELEPORT_ACCEP
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.POSITION;
 import static org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.UNKNOWN;
 
-public final class TeleportApplyEnforcer implements PacketEventSubscriber {
+public final class TeleportController implements PacketEventSubscriber {
   private static final boolean NEW_TELEPORTATION = MinecraftVersions.VER1_9_0.atOrAbove();
 
   private boolean teleportFeedbackSyncEnforcement = true;
